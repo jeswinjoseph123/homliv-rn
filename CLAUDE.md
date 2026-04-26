@@ -91,8 +91,8 @@ See `docs/design.md` for the full design system. Summary:
 ## Sessions completed
 
 - [x] Session 1 — Project Setup
-- [ ] Session 2 — Feed Surface
-- [ ] Session 3 — Listing Detail + Post Wizard
+- [x] Session 2 — Feed Surface
+- [x] Session 3 — Listing Detail + Post Wizard
 - [ ] Session 4 — Unified Chat
 - [ ] Session 5 — Tenant Home + Saved Searches
 - [ ] Session 6 — Auth + Verification Gate
