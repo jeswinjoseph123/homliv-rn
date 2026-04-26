@@ -137,7 +137,7 @@ export default function ListingDetailScreen() {
     return (
       <View style={[styles.container, styles.notFound]}>
         <Text style={styles.notFoundText}>Listing not found.</Text>
-        <Pressable onPress={() => router.back()} style={styles.backFallback}>
+        <Pressable onPress={() => router.canGoBack() ? router.back() : router.replace('/')} style={styles.backFallback}>
           <Text style={styles.backFallbackLabel}>← Go back</Text>
         </Pressable>
       </View>
@@ -233,7 +233,7 @@ export default function ListingDetailScreen() {
 
           {/* Back button */}
           <Pressable
-            onPress={() => router.back()}
+            onPress={() => router.canGoBack() ? router.back() : router.replace('/')}
             style={[styles.galleryBtn, { top: insets.top + 12, left: 16 }]}
             hitSlop={8}
           >

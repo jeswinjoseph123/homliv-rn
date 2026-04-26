@@ -107,10 +107,10 @@ export default function PostStep2Screen() {
         onPress: () => {
           track('post_abandoned')
           reset()
-          router.back()
+          router.canGoBack() ? router.back() : router.replace('/')
         },
       },
-      { text: 'Save draft', onPress: () => router.back() },
+      { text: 'Save draft', onPress: () => router.canGoBack() ? router.back() : router.replace('/') },
       { text: 'Keep editing', style: 'cancel' },
     ])
   }, [reset, router])
