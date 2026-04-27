@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
   heading: { ...(fonts.displayMd as object), color: colors.jet, textAlign: 'center' },
   sub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
 
-  otpRow: { flexDirection: 'row', gap: 10, marginTop: 8 },
+  otpRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
   otpBox: {
     width: 48,
     height: 56,

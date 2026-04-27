@@ -79,10 +79,8 @@ export default function ChatThreadScreen() {
 
   const conv = conversations.find((c) => c.id === activeConvId)
 
-  if (!sessionUser) return null
-
   const otherId =
-    conv?.participantIds.find((id) => id !== sessionUser.id) ??
+    conv?.participantIds.find((id) => id !== sessionUser?.id) ??
     recipientId ??
     ''
   const otherUser = mockUsers.find((u) => u.id === otherId)
@@ -147,7 +145,7 @@ export default function ChatThreadScreen() {
 
   const handleSubmitReport = useCallback(() => {
     if (!selectedReason) return
-    addReport(sessionUser.id, otherId, selectedReason, reportDesc)
+    addReport(sessionUser?.id ?? '', otherId, selectedReason, reportDesc)
     setShowReport(false)
     setSelectedReason(null)
     setReportDesc('')
@@ -179,13 +177,13 @@ export default function ChatThreadScreen() {
   }, [messages.length])
 
   const isLandlordForMsg = useCallback(
-    (msg: Message) => msg.senderId !== sessionUser.id,
-    [sessionUser.id],
+    (msg: Message) => msg.senderId !== sessionUser?.id,
+    [sessionUser?.id],
   )
 
   const renderItem = useCallback(
     ({ item: msg }: { item: Message }) => {
-      const isOwn = msg.senderId === sessionUser.id
+      const isOwn = msg.senderId === sessionUser?.id
 
       if (msg.type === 'status') {
         return (
@@ -229,6 +227,8 @@ export default function ChatThreadScreen() {
   )
 
   const showBanner = !bannerDismissed && !hasMessages
+
+  if (!sessionUser) return null
 
   return (
     <KeyboardAvoidingView

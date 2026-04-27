@@ -96,7 +96,6 @@ export default function VerifyLandlordScreen() {
       roles: user.roles.includes('landlord') ? user.roles : [...user.roles, 'landlord'],
     })
     track('landlord_verification_completed')
-    setStep(4)
   }, [user, setUser])
 
   return (
@@ -296,7 +295,7 @@ const styles = StyleSheet.create({
   stepHeading: { ...(fonts.titleLg as object), color: colors.jet },
   stepSub: { ...(fonts.bodyMd as object), color: colors.slateBrand, marginTop: -8 },
 
-  fieldGroup: { gap: 6 },
+  fieldGroup: { gap: 8 },
   label: { ...(fonts.labelMd as object), color: colors.slateBrand },
   input: {
     borderWidth: 1,
@@ -304,7 +303,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: colors.surfaceLow,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     ...(fonts.bodyMd as object),
     color: colors.ink,
   },
@@ -344,7 +343,7 @@ const styles = StyleSheet.create({
   bankNote: {
     backgroundColor: colors.amberBg,
     borderRadius: 12,
-    padding: 14,
+    padding: 12,
     borderWidth: 1,
     borderColor: `${colors.amber}30`,
   },
@@ -354,7 +353,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceLow,
     borderRadius: 16,
     padding: 16,
-    gap: 10,
+    gap: 8,
     ...(shadows.card as object),
   },
   summaryRow: {

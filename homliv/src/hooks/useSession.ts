@@ -33,8 +33,8 @@ export const useSession = create<SessionStore>()(
     {
       name: 'homliv-session',
       storage: createJSONStorage(() => AsyncStorage),
-      onRehydrateStorage: () => (state) => {
-        state?.setHasHydrated(true)
+      onRehydrateStorage: () => () => {
+        useSession.setState({ hasHydrated: true })
       },
       merge: (persisted, current) => {
         const p = persisted as { user?: unknown }

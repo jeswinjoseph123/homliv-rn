@@ -13,6 +13,9 @@ export const colors = {
   redBg:      '#fef2f2',
   amber:      '#f59e0b',
   amberBg:    '#fffbeb',
+  whiteHigh:  'rgba(255,255,255,0.85)',
+  whiteMid:   'rgba(255,255,255,0.70)',
+  whiteLow:   'rgba(255,255,255,0.55)',
 } as const
 
 export const gradients = {

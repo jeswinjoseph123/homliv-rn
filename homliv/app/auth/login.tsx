@@ -268,11 +268,11 @@ const styles = StyleSheet.create({
   bullets: { gap: 8 },
   bullet: {
     ...(fonts.bodyMd as object),
-    color: 'rgba(255,255,255,0.85)',
+    color: colors.whiteHigh,
   },
   tagline: {
     ...(fonts.labelMd as object),
-    color: 'rgba(255,255,255,0.55)',
+    color: colors.whiteLow,
   },
 
   formScroll: { flex: 1 },
@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     backgroundColor: colors.surfaceLow,
     paddingHorizontal: 16,
-    paddingVertical: 14,
+    paddingVertical: 16,
     ...(fonts.bodyMd as object),
     color: colors.ink,
   },
