@@ -16,7 +16,6 @@ import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { useSession } from '../../src/hooks/useSession'
-import { mockSessionUser } from '../../src/data/users'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
 import { track } from '../../src/lib/analytics'
 
@@ -106,7 +105,8 @@ export default function PostStep4Screen() {
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { listingType, photos, details, preferences, reset } = usePostDraft()
-  const sessionUser = useSession((s) => s.user) ?? mockSessionUser
+  const sessionUser = useSession((s) => s.user)
+  if (!sessionUser) return null
 
   const handleClose = useCallback(() => {
     Alert.alert('Discard listing?', '', [

@@ -7,36 +7,23 @@ import { useRouter } from 'expo-router'
 import { colors, gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
-import { mockSessionUser, mockUsers } from '../../src/data/users'
+import { mockUsers } from '../../src/data/users'
 import { mockListings } from '../../src/data/listings'
 import { mockTenancy } from '../../src/data/tenancy'
+import { useSession } from '../../src/hooks/useSession'
+import { useRequireAuth } from '../../src/hooks/useRequireAuth'
 import { useSaved } from '../../src/hooks/useSaved'
 import { useSavedSearches } from '../../src/hooks/useSavedSearches'
 import { useChatStore } from '../../src/hooks/useChatStore'
+import { VerificationBadge } from '../../src/components/shared/VerificationBadge'
 import { getInitials, formatPrice, formatDate } from '../../src/lib/utils'
-import type { Listing, SavedSearch, VerificationLevel } from '../../src/types'
+import type { Listing, SavedSearch, User } from '../../src/types'
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window')
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'
 
-function VerifBadge({ level }: { level: VerificationLevel }) {
-  if (level === 'none') return null
-  const map: Record<Exclude<VerificationLevel, 'none'>, { label: string; bg: string; text: string }> = {
-    contact:   { label: 'Contact-verified', bg: colors.amberBg, text: colors.amber },
-    homeowner: { label: '✓ Verified homeowner', bg: colors.greenBg, text: colors.green },
-    landlord:  { label: '✓ Verified landlord', bg: colors.greenBg, text: colors.green },
-  }
-  const c = map[level]
-  return (
-    <View style={[styles.badge, { backgroundColor: c.bg }]}>
-      <Text style={[styles.badgeText, { color: c.text }]}>{c.label}</Text>
-    </View>
-  )
-}
-
-function ProfileHeader() {
+function ProfileHeader({ user }: { user: User }) {
   const router = useRouter()
-  const user = mockSessionUser
 
   return (
     <View>
@@ -62,7 +49,7 @@ function ProfileHeader() {
         </View>
       </LinearGradient>
       <View style={styles.badgesRow}>
-        <VerifBadge level={user.verificationLevel} />
+        <VerificationBadge level={user.verificationLevel} />
       </View>
     </View>
   )
@@ -139,13 +126,16 @@ function criteriaLabels(s: SavedSearch): string[] {
 
 export default function MeScreen() {
   const router = useRouter()
+  const sessionUser = useSession((s) => s.user)
+  useRequireAuth()
+
   const savedIds = useSaved((s) => s.savedIds)
   const searches = useSavedSearches((s) => s.searches)
   const conversations = useChatStore((s) => s.conversations)
 
   const myListings = useMemo(
-    () => mockListings.filter((l) => l.posterId === mockSessionUser.id),
-    [],
+    () => mockListings.filter((l) => l.posterId === sessionUser?.id),
+    [sessionUser?.id],
   )
   const savedListings = useMemo(
     () => mockListings.filter((l) => savedIds.has(l.id)),
@@ -158,13 +148,15 @@ export default function MeScreen() {
         .filter(
           (m) =>
             m.type === 'maintenance' &&
-            m.senderId === mockSessionUser.id &&
+            m.senderId === sessionUser?.id &&
             m.maintenanceData?.status !== 'resolved',
         ),
-    [conversations],
+    [conversations, sessionUser?.id],
   )
 
-  const hasTenancy = mockTenancy.tenantId === mockSessionUser.id
+  if (!sessionUser) return null
+
+  const hasTenancy = mockTenancy.tenantId === sessionUser.id
   const landlord = hasTenancy ? mockUsers.find((u) => u.id === mockTenancy.landlordId) : undefined
   const tenancyListing = hasTenancy
     ? mockListings.find((l) => l.id === mockTenancy.listingId)
@@ -190,7 +182,7 @@ export default function MeScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scroll}
       >
-        <ProfileHeader />
+        <ProfileHeader user={sessionUser} />
 
         {/* Tenancy card */}
         {hasTenancy && tenancyListing && (
@@ -392,13 +384,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: colors.surfaceLow,
   },
-  badge: {
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  badgeText: { ...(fonts.labelMd as object) },
-
   // Tenancy
   tenancyCard: {
     marginHorizontal: 20,

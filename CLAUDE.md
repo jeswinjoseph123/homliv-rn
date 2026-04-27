@@ -95,5 +95,5 @@ See `docs/design.md` for the full design system. Summary:
 - [x] Session 3 — Listing Detail + Post Wizard
 - [x] Session 4 — Unified Chat
 - [x] Session 5 — Tenant Home + Saved Searches
-- [ ] Session 6 — Auth + Verification Gate
+- [x] Session 6 — Auth + Verification Gate
 - [ ] Session 7 — Landlord Dashboard + Polish + TestFlight

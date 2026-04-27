@@ -7,7 +7,9 @@ import { colors } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { useChatStore } from '../../src/hooks/useChatStore'
 import { useBlocked } from '../../src/hooks/useBlocked'
-import { mockUsers, mockSessionUser } from '../../src/data/users'
+import { mockUsers } from '../../src/data/users'
+import { useSession } from '../../src/hooks/useSession'
+import { useRequireAuth } from '../../src/hooks/useRequireAuth'
 import { mockListings } from '../../src/data/listings'
 import { addReport } from '../../src/data/reports'
 import { track } from '../../src/lib/analytics'
@@ -53,6 +55,9 @@ export default function ChatThreadScreen() {
   const router = useRouter()
   const insets = useSafeAreaInsets()
 
+  const sessionUser = useSession((s) => s.user)
+  useRequireAuth()
+
   const {
     conversations,
     dismissedBanners,
@@ -74,8 +79,10 @@ export default function ChatThreadScreen() {
 
   const conv = conversations.find((c) => c.id === activeConvId)
 
+  if (!sessionUser) return null
+
   const otherId =
-    conv?.participantIds.find((id) => id !== mockSessionUser.id) ??
+    conv?.participantIds.find((id) => id !== sessionUser.id) ??
     recipientId ??
     ''
   const otherUser = mockUsers.find((u) => u.id === otherId)
@@ -140,7 +147,7 @@ export default function ChatThreadScreen() {
 
   const handleSubmitReport = useCallback(() => {
     if (!selectedReason) return
-    addReport(mockSessionUser.id, otherId, selectedReason, reportDesc)
+    addReport(sessionUser.id, otherId, selectedReason, reportDesc)
     setShowReport(false)
     setSelectedReason(null)
     setReportDesc('')
@@ -172,13 +179,13 @@ export default function ChatThreadScreen() {
   }, [messages.length])
 
   const isLandlordForMsg = useCallback(
-    (msg: Message) => msg.senderId !== mockSessionUser.id,
-    [],
+    (msg: Message) => msg.senderId !== sessionUser.id,
+    [sessionUser.id],
   )
 
   const renderItem = useCallback(
     ({ item: msg }: { item: Message }) => {
-      const isOwn = msg.senderId === mockSessionUser.id
+      const isOwn = msg.senderId === sessionUser.id
 
       if (msg.type === 'status') {
         return (

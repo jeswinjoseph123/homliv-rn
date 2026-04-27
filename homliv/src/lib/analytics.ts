@@ -24,6 +24,7 @@ type EventName =
   | 'scam_warning_shown'
   | 'scam_warning_proceeded'
   | 'signup_completed'
+  | 'signin_completed'
   | 'phone_verified'
   | 'email_verified'
   | 'saved_search_created'

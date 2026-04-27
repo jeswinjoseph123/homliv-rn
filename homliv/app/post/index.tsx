@@ -7,6 +7,7 @@ import { colors } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
+import { useRequireAuth } from '../../src/hooks/useRequireAuth'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
 import { track } from '../../src/lib/analytics'
 import type { ListingType } from '../../src/types'
@@ -97,6 +98,7 @@ export default function PostStep1Screen() {
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { listingType, setListingType, reset } = usePostDraft()
+  useRequireAuth()
   const hasTrackedStart = useRef(false)
 
   useEffect(() => {

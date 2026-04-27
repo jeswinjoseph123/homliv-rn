@@ -4,6 +4,7 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter, router } from 'expo-router'
 import { colors } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
+import { useSession } from '../../src/hooks/useSession'
 import { mockSessionUser } from '../../src/data/users'
 import { VerificationBadge } from '../../src/components/shared/VerificationBadge'
 
@@ -34,10 +35,11 @@ function SectionHeader({ title, first }: { title: string; first?: boolean }) {
 
 export default function SettingsScreen() {
   const routerHook = useRouter()
-  const [name, setName] = useState(mockSessionUser.name)
-  const [email, setEmail] = useState(mockSessionUser.email)
-  const [phone, setPhone] = useState(mockSessionUser.phone)
-  const level = mockSessionUser.verificationLevel
+  const sessionUser = useSession((s) => s.user) ?? mockSessionUser
+  const [name, setName] = useState(sessionUser.name)
+  const [email, setEmail] = useState(sessionUser.email)
+  const [phone, setPhone] = useState(sessionUser.phone)
+  const level = sessionUser.verificationLevel
 
   const handleSave = useCallback(() => {
     Alert.alert('Changes saved', 'Your profile has been updated.')
