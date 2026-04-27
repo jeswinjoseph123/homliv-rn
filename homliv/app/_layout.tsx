@@ -20,6 +20,7 @@ export default function RootLayout() {
           <Stack.Screen name="messages" options={{ presentation: 'card' }} />
           <Stack.Screen name="post" options={{ presentation: 'modal' }} />
           <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="me" options={{ presentation: 'card' }} />
           <Stack.Screen name="landlord" options={{ presentation: 'card' }} />
         </Stack>
       </SafeAreaProvider>

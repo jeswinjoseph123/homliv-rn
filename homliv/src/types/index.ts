@@ -17,6 +17,7 @@ export type User = {
   verificationLevel: VerificationLevel
   phone: string
   email: string
+  location?: string
   joinedAt: Date
   isOnline: boolean
   lastSeen: Date

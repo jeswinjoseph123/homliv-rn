@@ -33,6 +33,7 @@ export const mockUsers: User[] = [
     verificationLevel: 'contact',
     phone: '+353 85 345 6789',
     email: 'aoife@example.com',
+    location: 'Dublin, Ireland',
     joinedAt: new Date('2025-01-10'),
     isOnline: true,
     lastSeen: new Date(),
