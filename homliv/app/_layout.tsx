@@ -1,10 +1,13 @@
 import { useEffect } from 'react'
+import { Text } from 'react-native'
 import { Stack, useRouter, useSegments } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
 import { track } from '../src/lib/analytics'
 import { useSession } from '../src/hooks/useSession'
+
+;(Text as unknown as { defaultProps?: Record<string, unknown> }).defaultProps = { allowFontScaling: true }
 
 export default function RootLayout() {
   const router = useRouter()

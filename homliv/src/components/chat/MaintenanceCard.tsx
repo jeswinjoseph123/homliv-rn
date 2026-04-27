@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { colors } from '../../constants/colors'
@@ -24,7 +25,7 @@ function StatusBadge({ status }: { status: Status }) {
   )
 }
 
-export function MaintenanceCard({ message, isLandlord, onAcknowledge }: Props) {
+export const MaintenanceCard = memo(function MaintenanceCard({ message, isLandlord, onAcknowledge }: Props) {
   const data = message.maintenanceData
   if (!data) return null
 
@@ -72,7 +73,7 @@ export function MaintenanceCard({ message, isLandlord, onAcknowledge }: Props) {
       )}
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {

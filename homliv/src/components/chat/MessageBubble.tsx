@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { colors } from '../../constants/colors'
 import { fonts } from '../../constants/typography'
@@ -12,7 +13,7 @@ function formatTime(date: Date): string {
   return date.toLocaleTimeString('en-IE', { hour: '2-digit', minute: '2-digit' })
 }
 
-export function MessageBubble({ message, isOwn }: Props) {
+export const MessageBubble = memo(function MessageBubble({ message, isOwn }: Props) {
   if (!message.text) return null
 
   return (
@@ -25,7 +26,7 @@ export function MessageBubble({ message, isOwn }: Props) {
       </View>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   ownWrapper: {

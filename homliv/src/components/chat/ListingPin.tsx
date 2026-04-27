@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { Ionicons } from '@expo/vector-icons'
@@ -11,7 +12,7 @@ type Props = {
   onPress: () => void
 }
 
-export function ListingPin({ listing, onPress }: Props) {
+export const ListingPin = memo(function ListingPin({ listing, onPress }: Props) {
   const photo = listing.photos[0] ?? undefined
 
   return (
@@ -30,7 +31,7 @@ export function ListingPin({ listing, onPress }: Props) {
       <Ionicons name="chevron-forward" size={18} color={colors.slateBrand} />
     </Pressable>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {

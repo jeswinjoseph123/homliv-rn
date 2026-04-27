@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, memo } from 'react'
 import {
   View,
   Text,
@@ -35,7 +35,7 @@ function formatLastSeen(lastSeen: Date): string {
   return `Last seen ${Math.floor(diffHours / 24)}d ago`
 }
 
-export function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
+export const ChatHeader = memo(function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
   const [menuOpen, setMenuOpen] = useState(false)
   const translateY = useSharedValue(300)
   const opacity = useSharedValue(0)
@@ -144,7 +144,7 @@ export function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
       )}
     </>
   )
-}
+})
 
 const styles = StyleSheet.create({
   header: {

@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { colors } from '../../constants/colors'
 import { fonts } from '../../constants/typography'
@@ -29,7 +30,7 @@ function formatConfirmedSlot(date: Date): string {
   return `${day} ${d} ${month} at ${time}`
 }
 
-export function ViewingCard({ message, isLandlord, convId }: Props) {
+export const ViewingCard = memo(function ViewingCard({ message, isLandlord, convId }: Props) {
   const confirmViewingSlot = useChatStore((s) => s.confirmViewingSlot)
 
   if (message.type === 'viewing_confirmed') {
@@ -98,7 +99,7 @@ export function ViewingCard({ message, isLandlord, convId }: Props) {
       </View>
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   requestContainer: {
