@@ -17,7 +17,7 @@ export default function RootLayout() {
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="listing/[id]" options={{ presentation: 'card' }} />
-          <Stack.Screen name="messages/[threadId]" options={{ presentation: 'card' }} />
+          <Stack.Screen name="messages" options={{ presentation: 'card' }} />
           <Stack.Screen name="post" options={{ presentation: 'modal' }} />
           <Stack.Screen name="auth" options={{ presentation: 'modal' }} />
           <Stack.Screen name="landlord" options={{ presentation: 'card' }} />
