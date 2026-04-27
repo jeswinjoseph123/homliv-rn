@@ -68,7 +68,13 @@ export function ComposerBar({
     <View style={[styles.container, { paddingBottom }]}>
       <BlurView intensity={80} tint="light" style={StyleSheet.absoluteFill} />
       <View style={styles.row}>
-        <Pressable onPress={onAttachPress} style={styles.attachBtn} hitSlop={8}>
+        <Pressable
+          onPress={onAttachPress}
+          style={styles.attachBtn}
+          hitSlop={8}
+          accessibilityLabel="Add attachment"
+          accessibilityRole="button"
+        >
           <Text style={styles.attachIcon}>+</Text>
         </Pressable>
 
@@ -85,7 +91,13 @@ export function ComposerBar({
           blurOnSubmit={false}
         />
 
-        <Pressable onPress={handleSend} style={styles.sendBtn}>
+        <Pressable
+          onPress={handleSend}
+          style={styles.sendBtn}
+          accessibilityLabel="Send message"
+          accessibilityRole="button"
+          accessibilityState={{ disabled: !canSend }}
+        >
           {canSend ? (
             <LinearGradient
               colors={gradients.coral}

@@ -236,6 +236,8 @@ export default function ListingDetailScreen() {
             onPress={() => router.canGoBack() ? router.back() : router.replace('/')}
             style={[styles.galleryBtn, { top: insets.top + 12, left: 16 }]}
             hitSlop={8}
+            accessibilityLabel="Go back"
+            accessibilityRole="button"
           >
             <Ionicons name="chevron-back" size={20} color="#ffffff" />
           </Pressable>
@@ -246,6 +248,9 @@ export default function ListingDetailScreen() {
               onPress={() => { toggle(listing.id); track('listing_saved', { listingId: listing.id }) }}
               style={styles.galleryBtn}
               hitSlop={8}
+              accessibilityLabel={isSaved ? 'Remove from saved' : 'Save listing'}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSaved }}
             >
               <Ionicons
                 name={isSaved ? 'bookmark' : 'bookmark-outline'}
@@ -253,7 +258,13 @@ export default function ListingDetailScreen() {
                 color={isSaved ? colors.coral : '#ffffff'}
               />
             </Pressable>
-            <Pressable onPress={() => void handleShare()} style={styles.galleryBtn} hitSlop={8}>
+            <Pressable
+              onPress={() => void handleShare()}
+              style={styles.galleryBtn}
+              hitSlop={8}
+              accessibilityLabel="Share listing"
+              accessibilityRole="button"
+            >
               <Ionicons name="share-outline" size={18} color="#ffffff" />
             </Pressable>
           </View>
@@ -378,7 +389,12 @@ export default function ListingDetailScreen() {
         ]}
       >
         <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
-        <Pressable onPress={handleMessage} style={styles.ctaBtn}>
+        <Pressable
+          onPress={handleMessage}
+          style={styles.ctaBtn}
+          accessibilityLabel={`Message ${poster.name}`}
+          accessibilityRole="button"
+        >
           <LinearGradient
             colors={gradients.coral}
             style={styles.ctaGradient}

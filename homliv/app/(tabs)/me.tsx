@@ -332,9 +332,42 @@ export default function MeScreen() {
           </View>
         )}
 
+        {/* Landlord dashboard */}
+        {sessionUser.roles.includes('landlord') && (
+          <View style={styles.section}>
+            <Pressable
+              onPress={() => router.push('/landlord')}
+              style={styles.landlordRow}
+              accessibilityLabel="Switch to Landlord view"
+              accessibilityRole="button"
+            >
+              <View style={styles.landlordLeft}>
+                <LinearGradient
+                  colors={gradients.coral}
+                  start={{ x: 0, y: 0 }}
+                  end={{ x: 1, y: 1 }}
+                  style={styles.landlordIcon}
+                >
+                  <Text style={{ fontSize: 16 }}>🏢</Text>
+                </LinearGradient>
+                <View style={styles.landlordText}>
+                  <Text style={styles.landlordLabel}>Landlord Dashboard</Text>
+                  <Text style={styles.landlordSub}>Manage your properties</Text>
+                </View>
+              </View>
+              <Text style={styles.settingsChevron}>›</Text>
+            </Pressable>
+          </View>
+        )}
+
         {/* Settings link */}
         <View style={styles.section}>
-          <Pressable onPress={() => router.push('/me/settings')} style={styles.settingsRow}>
+          <Pressable
+            onPress={() => router.push('/me/settings')}
+            style={styles.settingsRow}
+            accessibilityLabel="Settings"
+            accessibilityRole="button"
+          >
             <Text style={styles.settingsLabel}>⚙️  Settings</Text>
             <Text style={styles.settingsChevron}>›</Text>
           </Pressable>
@@ -513,6 +546,29 @@ const styles = StyleSheet.create({
   maintenanceTitle: { ...(fonts.titleSm as object), color: colors.jet },
   maintenanceSub: { ...(fonts.bodySm as object), color: colors.slateBrand },
   maintenanceLink: { ...(fonts.labelMd as object), color: colors.coral },
+
+  // Landlord dashboard row
+  landlordRow: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    ...(shadows.card as object),
+  },
+  landlordLeft: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  landlordIcon: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  landlordText: { gap: 2 },
+  landlordLabel: { ...(fonts.titleSm as object), color: colors.jet },
+  landlordSub: { ...(fonts.bodySm as object), color: colors.slateBrand },
 
   // Settings row
   settingsRow: {

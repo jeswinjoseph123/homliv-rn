@@ -22,6 +22,7 @@ type ChatStore = {
   addStatusMessage: (convId: string, text: string) => void
   confirmViewingSlot: (convId: string, slot: Date) => void
   acknowledgeMaintenanceReport: (convId: string, msgId: string) => void
+  updateMaintenanceStatus: (convId: string, msgId: string, status: 'open' | 'in_progress' | 'resolved') => void
   dismissBanner: (convId: string) => void
   createConversation: (listingId: string, recipientId: string) => string
 }
@@ -93,6 +94,21 @@ export const useChatStore = create<ChatStore>((set, get) => ({
           messages: c.messages.map((m) => {
             if (m.id !== msgId || !m.maintenanceData) return m
             return { ...m, maintenanceData: { ...m.maintenanceData, status: 'in_progress' as const } }
+          }),
+        }
+      }),
+    }))
+  },
+
+  updateMaintenanceStatus: (convId, msgId, status) => {
+    set((s) => ({
+      conversations: s.conversations.map((c) => {
+        if (c.id !== convId) return c
+        return {
+          ...c,
+          messages: c.messages.map((m) => {
+            if (m.id !== msgId || !m.maintenanceData) return m
+            return { ...m, maintenanceData: { ...m.maintenanceData, status } }
           }),
         }
       }),

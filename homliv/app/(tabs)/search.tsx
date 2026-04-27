@@ -57,6 +57,9 @@ function FilterChip({
     <Pressable
       onPress={onPress}
       style={[styles.chip, active && styles.chipActive]}
+      accessibilityLabel={label}
+      accessibilityRole="button"
+      accessibilityState={{ selected: active }}
     >
       <Text style={[styles.chipLabel, active && styles.chipLabelActive]}>{label}</Text>
     </Pressable>

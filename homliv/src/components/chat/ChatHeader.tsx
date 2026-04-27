@@ -73,7 +73,12 @@ export function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
   return (
     <>
       <BlurView intensity={80} tint="light" style={styles.header}>
-        <TouchableOpacity onPress={onBack} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+        <TouchableOpacity
+          onPress={onBack}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          accessibilityLabel="Go back"
+          accessibilityRole="button"
+        >
           <Ionicons name="chevron-back" size={24} color={colors.jet} />
         </TouchableOpacity>
 
@@ -94,10 +99,19 @@ export function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
         </View>
 
         <View style={styles.actions}>
-          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel="Call"
+            accessibilityRole="button"
+          >
             <Ionicons name="call-outline" size={22} color={colors.jet} />
           </TouchableOpacity>
-          <TouchableOpacity onPress={openMenu} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+          <TouchableOpacity
+            onPress={openMenu}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel="More options"
+            accessibilityRole="button"
+          >
             <Ionicons name="ellipsis-horizontal" size={22} color={colors.jet} />
           </TouchableOpacity>
         </View>

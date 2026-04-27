@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import { View, Text, Pressable, ScrollView, StyleSheet, TouchableOpacity } from 'react-native'
 import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
@@ -24,7 +25,7 @@ type Props = {
   onMessage?: () => void
 }
 
-export function ListingCard({ listing, onMessage }: Props) {
+export const ListingCard = memo(function ListingCard({ listing, onMessage }: Props) {
   const router = useRouter()
   const saved = useSaved((s) => s.savedIds.has(listing.id))
   const toggle = useSaved((s) => s.toggle)
@@ -63,7 +64,14 @@ export function ListingCard({ listing, onMessage }: Props) {
   const photo = listing.photos[0] ?? PLACEHOLDER
 
   return (
-    <Pressable onPressIn={onPressIn} onPressOut={onPressOut} onPress={onCardPress}>
+    <Pressable
+      onPressIn={onPressIn}
+      onPressOut={onPressOut}
+      onPress={onCardPress}
+      accessibilityLabel={`${listing.title}, ${formatPrice(listing.price)} per month, ${listing.location}`}
+      accessibilityRole="button"
+      accessibilityHint="Opens listing details"
+    >
       <Animated.View style={[styles.card, cardStyle]}>
         {/* ── Image area ── */}
         <View style={styles.imageArea}>
@@ -72,6 +80,7 @@ export function ListingCard({ listing, onMessage }: Props) {
             contentFit="cover"
             cachePolicy="memory-disk"
             style={StyleSheet.absoluteFill}
+            accessibilityLabel={listing.title}
           />
           {/* Badges — top left */}
           <View style={styles.topLeft}>
@@ -86,6 +95,9 @@ export function ListingCard({ listing, onMessage }: Props) {
             onPress={onSavePress}
             style={styles.saveBtn}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            accessibilityLabel={saved ? 'Remove from saved' : 'Save listing'}
+            accessibilityRole="button"
+            accessibilityState={{ selected: saved }}
           >
             <Ionicons
               name={saved ? 'heart' : 'heart-outline'}
@@ -101,14 +113,19 @@ export function ListingCard({ listing, onMessage }: Props) {
         <View style={styles.body}>
           {/* Poster row */}
           <View style={styles.posterRow}>
-            <View style={styles.avatar}>
+            <View style={styles.avatar} accessibilityElementsHidden>
               <Text style={styles.avatarText}>{getInitials(poster.name)}</Text>
             </View>
             <View style={styles.posterInfo}>
               <Text style={styles.posterName} numberOfLines={1}>{poster.name}</Text>
               <Text style={styles.posterTime}>{timeAgo(listing.createdAt)}</Text>
             </View>
-            <TouchableOpacity onPress={onMessagePress} style={styles.messageBtn}>
+            <TouchableOpacity
+              onPress={onMessagePress}
+              style={styles.messageBtn}
+              accessibilityLabel={`Message ${poster.name}`}
+              accessibilityRole="button"
+            >
               <LinearGradient
                 colors={gradients.coral}
                 start={{ x: 0, y: 0 }}
@@ -130,6 +147,7 @@ export function ListingCard({ listing, onMessage }: Props) {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.tagsContent}
+            accessibilityElementsHidden
           >
             {listing.tags.map((tag) => {
               const isAmber = AMBER_TAGS.has(tag)
@@ -155,19 +173,27 @@ export function ListingCard({ listing, onMessage }: Props) {
           {/* Action row */}
           <View style={styles.actionRow}>
             <View style={styles.stats}>
-              <View style={styles.stat}>
+              <View style={styles.stat} accessibilityElementsHidden>
                 <Ionicons name="heart-outline" size={14} color={colors.slateBrand} />
                 <Text style={styles.statText}>{listing.likes}</Text>
               </View>
-              <View style={styles.stat}>
+              <View style={styles.stat} accessibilityElementsHidden>
                 <Ionicons name="eye-outline" size={14} color={colors.slateBrand} />
                 <Text style={styles.statText}>{listing.views}</Text>
               </View>
-              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+              <TouchableOpacity
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                accessibilityLabel="Share listing"
+                accessibilityRole="button"
+              >
                 <Ionicons name="share-outline" size={16} color={colors.slateBrand} />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={onCardPress}>
+            <TouchableOpacity
+              onPress={onCardPress}
+              accessibilityLabel="View listing details"
+              accessibilityRole="button"
+            >
               <Text style={styles.viewDetailsText}>View details →</Text>
             </TouchableOpacity>
           </View>
@@ -175,7 +201,7 @@ export function ListingCard({ listing, onMessage }: Props) {
       </Animated.View>
     </Pressable>
   )
-}
+})
 
 const styles = StyleSheet.create({
   card: {

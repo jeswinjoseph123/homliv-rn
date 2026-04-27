@@ -1,16 +1,16 @@
-import { useCallback, memo } from 'react'
+import { useCallback, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { FlashList } from '@shopify/flash-list'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { FlashList } from '@shopify/flash-list'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import { colors, gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
+import { useSession } from '../../src/hooks/useSession'
 import { useChatStore } from '../../src/hooks/useChatStore'
-import { mockUsers, mockSessionUser } from '../../src/data/users'
 import { mockListings } from '../../src/data/listings'
-import { timeAgo } from '../../src/lib/utils'
-import { getInitials } from '../../src/lib/utils'
+import { mockUsers } from '../../src/data/users'
+import { getInitials, timeAgo } from '../../src/lib/utils'
 import type { Conversation, Message } from '../../src/types'
 
 function previewText(msg: Message | undefined): string {
@@ -24,22 +24,29 @@ function previewText(msg: Message | undefined): string {
   }
 }
 
-const ConvRow = memo(function ConvRow({ conv, onPress }: { conv: Conversation; onPress: () => void }) {
-  const otherId = conv.participantIds.find((id) => id !== mockSessionUser.id) ?? conv.participantIds[0]
+function ConvRow({
+  conv,
+  sessionUserId,
+  onPress,
+}: {
+  conv: Conversation
+  sessionUserId: string
+  onPress: () => void
+}) {
+  const otherId = conv.participantIds.find((id) => id !== sessionUserId) ?? conv.participantIds[0]
   const other = mockUsers.find((u) => u.id === otherId)
   if (!other) return null
 
   const lastMsg = conv.messages[conv.messages.length - 1]
   const unreadCount = conv.messages.filter(
-    (m) => m.senderId !== mockSessionUser.id && !m.readAt,
+    (m) => m.senderId !== sessionUserId && !m.readAt,
   ).length
 
-  const unreadLabel = unreadCount > 0 ? `, ${unreadCount} unread` : ''
   return (
     <Pressable
       onPress={onPress}
       style={styles.row}
-      accessibilityLabel={`Conversation with ${other.name}${unreadLabel}`}
+      accessibilityLabel={`Conversation with ${other.name}${unreadCount > 0 ? `, ${unreadCount} unread` : ''}`}
       accessibilityRole="button"
     >
       <View style={styles.avatarWrap}>
@@ -52,69 +59,79 @@ const ConvRow = memo(function ConvRow({ conv, onPress }: { conv: Conversation; o
       <View style={styles.rowContent}>
         <View style={styles.rowTop}>
           <Text style={styles.name} numberOfLines={1}>{other.name}</Text>
-          {lastMsg && (
-            <Text style={styles.timestamp}>{timeAgo(lastMsg.createdAt)}</Text>
-          )}
+          {lastMsg && <Text style={styles.timestamp}>{timeAgo(lastMsg.createdAt)}</Text>}
         </View>
-        <Text style={styles.preview} numberOfLines={1}>
-          {previewText(lastMsg)}
-        </Text>
+        <Text style={styles.preview} numberOfLines={1}>{previewText(lastMsg)}</Text>
       </View>
 
       {unreadCount > 0 && (
-        <LinearGradient colors={gradients.coral} style={styles.badge} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }}>
+        <LinearGradient
+          colors={gradients.coral}
+          style={styles.badge}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 1 }}
+        >
           <Text style={styles.badgeText}>{unreadCount}</Text>
         </LinearGradient>
       )}
     </Pressable>
   )
-})
-
-function EmptyState() {
-  const router = useRouter()
-  return (
-    <View style={styles.empty}>
-      <Text style={styles.emptyIcon}>💬</Text>
-      <Text style={styles.emptyTitle}>No conversations yet</Text>
-      <Text style={styles.emptySub}>Start by messaging a listing</Text>
-      <Pressable onPress={() => router.push('/')}>
-        <Text style={styles.emptyLink}>Browse listings</Text>
-      </Pressable>
-    </View>
-  )
 }
 
-export default function MessagesScreen() {
+export default function LandlordMessages() {
   const router = useRouter()
+  const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
 
-  const sorted = [...conversations].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+  const landlordConvs = useMemo(() => {
+    if (!sessionUser) return []
+    return conversations
+      .filter((c) => {
+        const listing = mockListings.find((l) => l.id === c.listingId)
+        return listing?.posterId === sessionUser.id
+      })
+      .sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
+  }, [conversations, sessionUser])
 
   const handlePress = useCallback((conv: Conversation) => {
-    const listing = mockListings.find((l) => l.id === conv.listingId)
-    const otherId = conv.participantIds.find((id) => id !== mockSessionUser.id) ?? ''
+    const otherId = conv.participantIds.find((id) => id !== sessionUser?.id) ?? ''
     router.push({
       pathname: '/messages/[threadId]',
-      params: {
-        threadId: conv.id,
-        listingId: conv.listingId ?? '',
-        recipientId: otherId,
-      },
+      params: { threadId: conv.id, listingId: conv.listingId, recipientId: otherId },
     })
-  }, [router])
+  }, [router, sessionUser?.id])
+
+  const renderItem = useCallback(
+    ({ item }: { item: Conversation }) => (
+      <ConvRow
+        conv={item}
+        sessionUserId={sessionUser?.id ?? ''}
+        onPress={() => handlePress(item)}
+      />
+    ),
+    [handlePress, sessionUser?.id],
+  )
+
+  if (!sessionUser) return null
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
         <Text style={styles.headerTitle}>Messages</Text>
+        <Text style={styles.headerCount}>{landlordConvs.length} conversations</Text>
       </View>
+
       <FlashList
-        data={sorted}
-        renderItem={({ item }) => (
-          <ConvRow conv={item} onPress={() => handlePress(item)} />
-        )}
+        data={landlordConvs}
+        renderItem={renderItem}
         keyExtractor={(item) => item.id}
-        ListEmptyComponent={EmptyState}
+        ListEmptyComponent={
+          <View style={styles.empty}>
+            <Text style={styles.emptyIcon}>💬</Text>
+            <Text style={styles.emptyTitle}>No messages yet</Text>
+            <Text style={styles.emptySub}>Tenant enquiries appear here</Text>
+          </View>
+        }
         contentContainerStyle={styles.listContent}
       />
     </SafeAreaView>
@@ -122,14 +139,18 @@ export default function MessagesScreen() {
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
+  container: { flex: 1, backgroundColor: colors.surfaceLow },
   header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
     paddingHorizontal: 20,
     paddingVertical: 16,
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: `${colors.ghost}40`,
   },
   headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+  headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
   listContent: { paddingBottom: 20 },
   row: {
     flexDirection: 'row',
@@ -162,11 +183,7 @@ const styles = StyleSheet.create({
     borderColor: colors.surface,
   },
   rowContent: { flex: 1, gap: 3 },
-  rowTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
+  rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1, marginRight: 8 },
   timestamp: { ...(fonts.labelSm as object), color: colors.slateBrand },
   preview: { ...(fonts.bodySm as object), color: colors.slateBrand },
@@ -180,7 +197,6 @@ const styles = StyleSheet.create({
   },
   badgeText: { ...(fonts.labelSm as object), color: '#ffffff' },
   empty: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingTop: 80,
@@ -189,5 +205,4 @@ const styles = StyleSheet.create({
   emptyIcon: { fontSize: 40 },
   emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
   emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-  emptyLink: { ...(fonts.titleSm as object), color: colors.coral, marginTop: 4 },
 })

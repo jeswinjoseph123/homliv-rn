@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "homliv",
+    "name": "HomLiv",
     "slug": "homliv",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -10,10 +10,11 @@
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
-      "backgroundColor": "#ffffff"
+      "backgroundColor": "#f5f5f7"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "ie.homliv.app"
     },
     "android": {
       "adaptiveIcon": {
