@@ -22,6 +22,7 @@ import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
+import { WizardFooter } from '../../src/components/post/WizardFooter'
 import { track } from '../../src/lib/analytics'
 import type { BillsOption } from '../../src/hooks/usePostDraft'
 
@@ -193,13 +194,23 @@ export default function PostStep3Screen() {
         onPress: () => {
           track('post_abandoned')
           reset()
-          router.canGoBack() ? router.back() : router.replace('/')
+          router.replace('/')
         },
       },
-      { text: 'Save draft', onPress: () => router.canGoBack() ? router.back() : router.replace('/') },
+      { text: 'Save draft', onPress: () => router.replace('/') },
       { text: 'Keep editing', style: 'cancel' },
     ])
   }, [reset, router])
+
+  const handleNextDisabled = useCallback(() => {
+    const missing: string[] = []
+    if (!details.title.trim()) missing.push('Title')
+    if (!details.price.trim()) missing.push('Rent per month')
+    if (!details.location.trim()) missing.push('Eircode or area')
+    if (details.description.trim().length < MIN_DESC)
+      missing.push(`Description (${details.description.trim().length}/${MIN_DESC} chars minimum)`)
+    Alert.alert('Missing details', `Please complete:\n\n• ${missing.join('\n• ')}`)
+  }, [details])
 
   const canProceed =
     details.title.trim().length > 0 &&
@@ -228,14 +239,7 @@ export default function PostStep3Screen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <View style={[styles.container, { paddingTop: insets.top }]}>
-        <WizardHeader
-          step={3}
-          title="Details"
-          onClose={handleClose}
-          onNext={handleNext}
-          nextLabel="Next"
-          nextDisabled={!canProceed}
-        />
+        <WizardHeader step={3} title="Details" onClose={handleClose} />
         <ScrollView
           contentContainerStyle={styles.content}
           showsVerticalScrollIndicator={false}
@@ -371,6 +375,12 @@ export default function PostStep3Screen() {
             </View>
           )}
         </ScrollView>
+        <WizardFooter
+          onBack={() => router.back()}
+          onNext={handleNext}
+          onNextDisabled={handleNextDisabled}
+          nextDisabled={!canProceed}
+        />
       </View>
     </KeyboardAvoidingView>
   )

@@ -17,6 +17,7 @@ import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
+import { WizardFooter } from '../../src/components/post/WizardFooter'
 import { track } from '../../src/lib/analytics'
 
 const MAX_PHOTOS = 6
@@ -107,10 +108,10 @@ export default function PostStep2Screen() {
         onPress: () => {
           track('post_abandoned')
           reset()
-          router.canGoBack() ? router.back() : router.replace('/')
+          router.replace('/')
         },
       },
-      { text: 'Save draft', onPress: () => router.canGoBack() ? router.back() : router.replace('/') },
+      { text: 'Save draft', onPress: () => router.replace('/') },
       { text: 'Keep editing', style: 'cancel' },
     ])
   }, [reset, router])
@@ -182,14 +183,7 @@ export default function PostStep2Screen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <WizardHeader
-        step={2}
-        title="Photos"
-        onClose={handleClose}
-        onNext={handleNext}
-        nextLabel="Next"
-        nextDisabled={photos.length === 0}
-      />
+      <WizardHeader step={2} title="Photos" onClose={handleClose} />
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -250,6 +244,11 @@ export default function PostStep2Screen() {
           <Text style={styles.hint}>At least 1 photo required to continue.</Text>
         )}
       </ScrollView>
+      <WizardFooter
+        onBack={() => router.back()}
+        onNext={handleNext}
+        nextDisabled={photos.length === 0}
+      />
     </View>
   )
 }

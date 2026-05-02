@@ -9,6 +9,7 @@ import { shadows } from '../../src/constants/shadows'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { useRequireAuth } from '../../src/hooks/useRequireAuth'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
+import { WizardFooter } from '../../src/components/post/WizardFooter'
 import { track } from '../../src/lib/analytics'
 import type { ListingType } from '../../src/types'
 
@@ -118,10 +119,10 @@ export default function PostStep1Screen() {
         onPress: () => {
           track('post_abandoned')
           reset()
-          router.canGoBack() ? router.back() : router.replace('/')
+          router.replace('/')
         },
       },
-      { text: 'Save draft', onPress: () => router.canGoBack() ? router.back() : router.replace('/') },
+      { text: 'Save draft', onPress: () => router.replace('/') },
       { text: 'Keep editing', style: 'cancel' },
     ])
   }, [reset, router])
@@ -141,14 +142,7 @@ export default function PostStep1Screen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <WizardHeader
-        step={1}
-        title="Listing type"
-        onClose={handleClose}
-        onNext={handleNext}
-        nextLabel="Next"
-        nextDisabled={!listingType}
-      />
+      <WizardHeader step={1} title="Listing type" onClose={handleClose} />
       <ScrollView
         contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
@@ -167,6 +161,7 @@ export default function PostStep1Screen() {
           />
         ))}
       </ScrollView>
+      <WizardFooter onNext={handleNext} nextDisabled={!listingType} />
     </View>
   )
 }

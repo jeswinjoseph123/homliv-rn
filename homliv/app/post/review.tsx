@@ -18,6 +18,7 @@ import { useTheme } from '../../src/hooks/useTheme'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { useSession } from '../../src/hooks/useSession'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
+import { WizardFooter } from '../../src/components/post/WizardFooter'
 import { track } from '../../src/lib/analytics'
 
 const LISTING_TYPE_LABEL: Record<string, string> = {
@@ -120,10 +121,10 @@ export default function PostStep4Screen() {
         onPress: () => {
           track('post_abandoned')
           reset()
-          router.canGoBack() ? router.back() : router.replace('/')
+          router.replace('/')
         },
       },
-      { text: 'Save draft', onPress: () => router.canGoBack() ? router.back() : router.replace('/') },
+      { text: 'Save draft', onPress: () => router.replace('/') },
       { text: 'Keep editing', style: 'cancel' },
     ])
   }, [reset, router])
@@ -147,14 +148,9 @@ export default function PostStep4Screen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <WizardHeader
-        step={4}
-        title="Review"
-        onClose={handleClose}
-        showNext={false}
-      />
+      <WizardHeader step={4} title="Review" onClose={handleClose} />
       <ScrollView
-        contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 100 }]}
+        contentContainerStyle={[styles.content, { paddingBottom: 24 }]}
         showsVerticalScrollIndicator={false}
       >
         {photos.length > 0 && (
@@ -217,6 +213,7 @@ export default function PostStep4Screen() {
           onPublish={handlePublish}
         />
       </ScrollView>
+      <WizardFooter onBack={() => router.back()} showNext={false} />
     </View>
   )
 }

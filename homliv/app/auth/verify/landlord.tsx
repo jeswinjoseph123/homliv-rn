@@ -18,6 +18,7 @@ import { shadows } from '../../../src/constants/shadows'
 import { useTheme } from '../../../src/hooks/useTheme'
 import { useSession } from '../../../src/hooks/useSession'
 import { WizardHeader } from '../../../src/components/post/WizardHeader'
+import { WizardFooter } from '../../../src/components/post/WizardFooter'
 import { track } from '../../../src/lib/analytics'
 
 type Step = 1 | 2 | 3 | 4
@@ -103,17 +104,10 @@ export default function VerifyLandlordScreen() {
 
   return (
     <View style={[styles.container, { paddingTop: insets.top }]}>
-      <WizardHeader
-        step={step}
-        title={STEP_TITLES[step]}
-        onClose={handleClose}
-        onNext={step < 4 ? handleNext : undefined}
-        nextDisabled={!canProceed[step]}
-        showNext={step < 4}
-      />
+      <WizardHeader step={step} title={STEP_TITLES[step]} onClose={handleClose} />
 
       <ScrollView
-        contentContainerStyle={[styles.scroll, { paddingBottom: insets.bottom + 80 }]}
+        contentContainerStyle={[styles.scroll, { paddingBottom: 24 }]}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
       >
@@ -277,6 +271,9 @@ export default function VerifyLandlordScreen() {
           </View>
         )}
       </ScrollView>
+      {step < 4 && (
+        <WizardFooter onNext={handleNext} nextDisabled={!canProceed[step]} />
+      )}
     </View>
   )
 }
