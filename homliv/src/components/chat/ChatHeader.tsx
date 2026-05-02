@@ -1,4 +1,4 @@
-import { useState, memo } from 'react'
+import { useState, memo, useMemo } from 'react'
 import {
   View,
   Text,
@@ -13,7 +13,7 @@ import Animated, {
   useAnimatedStyle,
   withTiming,
 } from 'react-native-reanimated'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 import { getInitials } from '../../lib/utils'
 import type { User } from '../../types'
@@ -36,6 +36,8 @@ function formatLastSeen(lastSeen: Date): string {
 }
 
 export const ChatHeader = memo(function ChatHeader({ otherUser, onBack, onBlock, onReport }: Props) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const [menuOpen, setMenuOpen] = useState(false)
   const translateY = useSharedValue(300)
   const opacity = useSharedValue(0)
@@ -119,12 +121,10 @@ export const ChatHeader = memo(function ChatHeader({ otherUser, onBack, onBlock,
 
       {menuOpen && (
         <View style={StyleSheet.absoluteFill} pointerEvents="box-none">
-          {/* Dim backdrop */}
           <Animated.View style={[styles.backdrop, overlayStyle]} pointerEvents="auto">
             <Pressable style={StyleSheet.absoluteFill} onPress={closeMenu} />
           </Animated.View>
 
-          {/* Action sheet panel */}
           <Animated.View style={[styles.panel, panelStyle]} pointerEvents="auto">
             <View style={styles.handle} />
 
@@ -146,88 +146,70 @@ export const ChatHeader = memo(function ChatHeader({ otherUser, onBack, onBlock,
   )
 })
 
-const styles = StyleSheet.create({
-  header: {
-    height: 60,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 16,
-    gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  userInfo: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 13,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: {
-    ...(fonts.labelMd as object),
-    color: 'white',
-  },
-  nameBlock: {
-    flex: 1,
-  },
-  name: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  online: {
-    ...(fonts.labelSm as object),
-    color: colors.green,
-  },
-  lastSeen: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-  actions: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-  },
-  backdrop: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  panel: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingBottom: 40,
-    paddingTop: 12,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: `${colors.ghost}99`,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  menuItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}30`,
-  },
-  menuLabel: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    header: {
+      height: 60,
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 16,
+      gap: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    userInfo: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 10,
+    },
+    avatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 13,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { ...(fonts.labelMd as object), color: 'white' },
+    nameBlock: { flex: 1 },
+    name: { ...(fonts.titleSm as object), color: colors.jet },
+    online: { ...(fonts.labelSm as object), color: colors.green },
+    lastSeen: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    actions: { flexDirection: 'row', alignItems: 'center', gap: 16 },
+    backdrop: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.4)',
+    },
+    panel: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingHorizontal: 16,
+      paddingBottom: 40,
+      paddingTop: 12,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: `${colors.ghost}99`,
+      alignSelf: 'center',
+      marginBottom: 16,
+    },
+    menuItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 14,
+      paddingVertical: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}30`,
+    },
+    menuLabel: { ...(fonts.bodyMd as object), color: colors.ink },
+  }), [colors])
+}

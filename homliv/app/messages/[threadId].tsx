@@ -1,9 +1,9 @@
-import { useState, useCallback, useRef, useEffect } from 'react'
+import { useState, useCallback, useMemo, useRef, useEffect } from 'react'
 import { View, Text, Alert, StyleSheet, KeyboardAvoidingView, Platform } from 'react-native'
 import { FlashList, FlashListRef } from '@shopify/flash-list'
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { useChatStore } from '../../src/hooks/useChatStore'
 import { useBlocked } from '../../src/hooks/useBlocked'
@@ -27,6 +27,7 @@ import type { Message } from '../../src/types'
 const REPORT_REASONS = ['Spam', 'Scam attempt', 'Harassment', 'Fake listing', 'Other']
 
 function DateSeparator({ date }: { date: Date }) {
+  const styles = useStyles()
   const now = new Date()
   const isToday = date.toDateString() === now.toDateString()
   const yesterday = new Date(now)
@@ -47,6 +48,7 @@ function DateSeparator({ date }: { date: Date }) {
 }
 
 export default function ChatThreadScreen() {
+  const styles = useStyles()
   const { threadId, listingId, recipientId } = useLocalSearchParams<{
     threadId: string
     listingId?: string
@@ -356,100 +358,103 @@ export default function ChatThreadScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  msgPad: { paddingHorizontal: 16, paddingVertical: 2 },
-  msgRight: { alignItems: 'flex-end' },
-  msgLeft: { alignItems: 'flex-start' },
-  statusMsg: {
-    alignItems: 'center',
-    paddingVertical: 8,
-    paddingHorizontal: 16,
-  },
-  statusText: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-    backgroundColor: `${colors.ghost}30`,
-    paddingHorizontal: 12,
-    paddingVertical: 4,
-    borderRadius: 20,
-  },
-  emptyChat: {
-    flex: 1,
-    alignItems: 'center',
-    paddingTop: 40,
-  },
-  emptyChatText: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    textAlign: 'center',
-  },
-  reportOverlay: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0,0,0,0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 100,
-  },
-  reportCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 24,
-    marginHorizontal: 24,
-    gap: 12,
-    width: '100%',
-    maxWidth: 360,
-  },
-  reportTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  reportOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 4,
-  },
-  reportOptionActive: {},
-  reportRadio: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 2,
-    borderColor: colors.ghost,
-  },
-  reportRadioActive: {
-    borderColor: colors.coral,
-    backgroundColor: colors.coral,
-  },
-  reportReasonLabel: { ...(fonts.bodyMd as object), color: colors.ink },
-  reportButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  reportCancelBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reportCancelLabel: { ...(fonts.titleSm as object), color: colors.slateBrand },
-  reportSubmitBtn: {
-    flex: 1,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.coral,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  reportSubmitDisabled: { opacity: 0.4 },
-  reportSubmitLabel: { ...(fonts.titleSm as object), color: '#ffffff' },
-  separator: {
-    alignItems: 'center' as const,
-    paddingVertical: 8,
-  },
-  separatorText: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    msgPad: { paddingHorizontal: 16, paddingVertical: 2 },
+    msgRight: { alignItems: 'flex-end' },
+    msgLeft: { alignItems: 'flex-start' },
+    statusMsg: {
+      alignItems: 'center',
+      paddingVertical: 8,
+      paddingHorizontal: 16,
+    },
+    statusText: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+      backgroundColor: `${colors.ghost}30`,
+      paddingHorizontal: 12,
+      paddingVertical: 4,
+      borderRadius: 20,
+    },
+    emptyChat: {
+      flex: 1,
+      alignItems: 'center',
+      paddingTop: 40,
+    },
+    emptyChatText: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+      textAlign: 'center',
+    },
+    reportOverlay: {
+      ...StyleSheet.absoluteFillObject,
+      backgroundColor: 'rgba(0,0,0,0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      zIndex: 100,
+    },
+    reportCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 24,
+      marginHorizontal: 24,
+      gap: 12,
+      width: '100%',
+      maxWidth: 360,
+    },
+    reportTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    reportOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingVertical: 4,
+    },
+    reportOptionActive: {},
+    reportRadio: {
+      width: 18,
+      height: 18,
+      borderRadius: 9,
+      borderWidth: 2,
+      borderColor: colors.ghost,
+    },
+    reportRadioActive: {
+      borderColor: colors.coral,
+      backgroundColor: colors.coral,
+    },
+    reportReasonLabel: { ...(fonts.bodyMd as object), color: colors.ink },
+    reportButtons: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 8,
+    },
+    reportCancelBtn: {
+      flex: 1,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceLow,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    reportCancelLabel: { ...(fonts.titleSm as object), color: colors.slateBrand },
+    reportSubmitBtn: {
+      flex: 1,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.coral,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    reportSubmitDisabled: { opacity: 0.4 },
+    reportSubmitLabel: { ...(fonts.titleSm as object), color: '#ffffff' },
+    separator: {
+      alignItems: 'center' as const,
+      paddingVertical: 8,
+    },
+    separatorText: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+    },
+  }), [colors])
+}

@@ -2,7 +2,8 @@ import { View, Text, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { colors } from '../../src/constants/colors'
+import { useRouter } from 'expo-router'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { FeedHeader } from '../../src/components/layout/FeedHeader'
 import { StoriesRow } from '../../src/components/feed/StoriesRow'
@@ -63,6 +64,7 @@ function filterListings(listings: Listing[], filter: FilterKey): Listing[] {
 }
 
 function SectionHeader({ count, total }: { count: number; total: number }) {
+  const styles = useStyles()
   return (
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>Dublin & beyond</Text>
@@ -72,6 +74,7 @@ function SectionHeader({ count, total }: { count: number; total: number }) {
 }
 
 function DividerRow({ text }: { text: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.dividerRow}>
       <View style={styles.dividerLine} />
@@ -82,6 +85,8 @@ function DividerRow({ text }: { text: string }) {
 }
 
 export default function FeedScreen() {
+  const router = useRouter()
+  const styles = useStyles()
   const [activeFilter, setActiveFilter] = useState<FilterKey>('All')
   const [page, setPage] = useState(1)
   const [loading, setLoading] = useState(true)
@@ -139,7 +144,10 @@ export default function FeedScreen() {
   if (loading) {
     return (
       <SafeAreaView style={styles.container} edges={['top']}>
-        <FeedHeader />
+        <FeedHeader
+          onBellPress={() => router.push('/me/settings/notifications')}
+          onSearchPress={() => router.replace('/(tabs)/search')}
+        />
         <View style={styles.skeletonList}>
           <ListingCardSkeleton />
           <ListingCardSkeleton />
@@ -151,7 +159,11 @@ export default function FeedScreen() {
 
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
-      <FeedHeader hasUnread />
+      <FeedHeader
+        hasUnread
+        onBellPress={() => router.push('/me/settings/notifications')}
+        onSearchPress={() => router.replace('/(tabs)/search')}
+      />
       <FlashList
         data={paginated}
         keyExtractor={(item) => item.id}
@@ -169,51 +181,54 @@ export default function FeedScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 100,
-  },
-  separator: { height: 12 },
-  skeletonList: {
-    paddingHorizontal: 16,
-    paddingTop: 16,
-    gap: 12,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 8,
-    paddingHorizontal: 4,
-    marginBottom: 4,
-  },
-  sectionTitle: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  sectionCount: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginBottom: 12,
-  },
-  dividerLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: colors.ghost,
-    opacity: 0.5,
-  },
-  dividerLabel: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    listContent: {
+      paddingHorizontal: 16,
+      paddingBottom: 100,
+    },
+    separator: { height: 12 },
+    skeletonList: {
+      paddingHorizontal: 16,
+      paddingTop: 16,
+      gap: 12,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 8,
+      paddingHorizontal: 4,
+      marginBottom: 4,
+    },
+    sectionTitle: {
+      ...(fonts.titleSm as object),
+      color: colors.jet,
+    },
+    sectionCount: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+    },
+    dividerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 12,
+    },
+    dividerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.ghost,
+      opacity: 0.5,
+    },
+    dividerLabel: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+    },
+  }), [colors])
+}

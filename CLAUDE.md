@@ -97,3 +97,4 @@ See `docs/design.md` for the full design system. Summary:
 - [x] Session 5 — Tenant Home + Saved Searches
 - [x] Session 6 — Auth + Verification Gate
 - [x] Session 7 — Landlord Dashboard + Polish + TestFlight
+- [x] Session 8 — Dark Mode (light/dark/auto toggle, full theme migration, ColorTokens fix)

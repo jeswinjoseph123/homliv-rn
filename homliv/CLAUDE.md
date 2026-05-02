@@ -142,12 +142,23 @@ The maintenance tab derives all data from `useChatStore` — it flatMaps mainten
 
 ---
 
+## Tab bar
+
+- Uses `NativeTabs` from `expo-router/unstable-native-tabs` (alpha, SDK 54+)
+- SDK 54 API: `import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs'` — standalone `Icon`/`Label`, NOT compound `NativeTabs.Trigger.Icon` (that's SDK 55+)
+- `tintColor={colors.coral}` sets active tab color; SF Symbols via `sf={{ default: 'house', selected: 'house.fill' }}`
+- Gives real iOS Liquid Glass automatically on iOS 18+ — no custom JS blur needed
+
+---
+
 ## Auth + session notes
 
 - **Dev session user**: `mockUsers[2]` (Aoife Murphy, `roles: ['user']`) — cannot access landlord dashboard
 - **Test landlord login**: use email `priya@example.com` (Priya Nair, `roles: ['landlord']`, owns l4 + l6) or `sean@example.com` (Sean Brennan, owns l5 + l9)
-- Onboarding screen shown when `!user && hasHydrated` — root `_layout.tsx` handles the redirect
+- Onboarding shown when `!user && hasHydrated` — `(tabs)/_layout.tsx` handles the redirect
 - `useRequireAuth({ requireLandlord: true })` is called in `app/landlord/_layout.tsx`
+- Never call Zustand actions (e.g. `clearSession()`) during render — use `useEffect`. Causes "Cannot update a component while rendering" crash.
+- Do NOT use module-level `FORCE_ONBOARDING` flags — they survive remounts and silently wipe sessions after sign-in. Use `clearSession()` from a dev menu or settings instead.
 
 ---
 
@@ -171,3 +182,5 @@ All new interactive elements must have:
 - [x] Session 5 — Tenant Home + Saved Searches
 - [x] Session 6 — Auth + Verification Gate
 - [x] Session 7 — Landlord Dashboard + Accessibility + Performance + TestFlight
+- [x] Session 8 — Dark Mode (light/dark/auto toggle, full theme migration, ColorTokens fix)
+- [x] Session 9 — Liquid Glass tab bar (NativeTabs migration, auth fix)

@@ -1,36 +1,53 @@
-import { useEffect } from 'react'
-import { Text } from 'react-native'
-import { Stack, useRouter, useSegments } from 'expo-router'
+import { useEffect, useRef } from 'react'
+import { Text, StyleSheet } from 'react-native'
+import { Stack } from 'expo-router'
 import { StatusBar } from 'expo-status-bar'
 import { GestureHandlerRootView } from 'react-native-gesture-handler'
 import { SafeAreaProvider } from 'react-native-safe-area-context'
+import Animated, { useSharedValue, withTiming, useAnimatedStyle } from 'react-native-reanimated'
 import { track } from '../src/lib/analytics'
-import { useSession } from '../src/hooks/useSession'
+import { useTheme, useThemeStore } from '../src/hooks/useTheme'
 
 ;(Text as unknown as { defaultProps?: Record<string, unknown> }).defaultProps = { allowFontScaling: true }
 
+function ThemeCrossfade() {
+  const { isDark } = useTheme()
+  const overlayOpacity = useSharedValue(0)
+  const prevIsDark = useRef(isDark)
+
+  useEffect(() => {
+    if (prevIsDark.current === isDark) return
+    prevIsDark.current = isDark
+    overlayOpacity.value = withTiming(1, { duration: 150 }, () => {
+      overlayOpacity.value = withTiming(0, { duration: 150 })
+    })
+  }, [isDark, overlayOpacity])
+
+  const overlayStyle = useAnimatedStyle(() => ({
+    opacity: overlayOpacity.value,
+  }))
+
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[StyleSheet.absoluteFill, styles.overlay, overlayStyle]}
+    />
+  )
+}
+
 export default function RootLayout() {
-  const router = useRouter()
-  const segments = useSegments()
-  const user = useSession((s) => s.user)
-  const hasHydrated = useSession((s) => s.hasHydrated)
+  const { isDark } = useTheme()
+  // Subscribe to mode for crossfade trigger
+  useThemeStore()
 
   useEffect(() => {
     track('app_opened')
   }, [])
 
-  useEffect(() => {
-    if (!hasHydrated) return
-    const inAuthFlow = segments[0] === 'onboarding' || segments[0] === 'auth'
-    if (!user && !inAuthFlow) {
-      router.replace('/onboarding')
-    }
-  }, [user, hasHydrated, segments])
-
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="dark" />
+        <StatusBar style={isDark ? 'light' : 'dark'} />
         <Stack screenOptions={{ headerShown: false }}>
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="onboarding" options={{ presentation: 'fullScreenModal' }} />
@@ -41,7 +58,15 @@ export default function RootLayout() {
           <Stack.Screen name="me" options={{ presentation: 'card' }} />
           <Stack.Screen name="landlord" options={{ presentation: 'card' }} />
         </Stack>
+        <ThemeCrossfade />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   )
 }
+
+const styles = StyleSheet.create({
+  overlay: {
+    backgroundColor: '#000',
+    zIndex: 9999,
+  },
+})

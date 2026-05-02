@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import {
   View,
   Text,
@@ -11,11 +11,13 @@ import {
   Platform,
 } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
+import { Ionicons } from '@expo/vector-icons'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
+import { useTheme } from '../../src/hooks/useTheme'
 import { useSession } from '../../src/hooks/useSession'
 import { mockUsers } from '../../src/data/users'
 import { track } from '../../src/lib/analytics'
@@ -30,6 +32,8 @@ const BULLETS = [
 ]
 
 export default function LoginScreen() {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { user, hasHydrated, setUser } = useSession()
@@ -86,7 +90,6 @@ export default function LoginScreen() {
       style={styles.root}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      {/* Dark header panel */}
       <View style={[styles.darkPanel, { paddingTop: insets.top + 24, height: 280 + insets.top }]}>
         <LinearGradient
           colors={gradients.dark}
@@ -105,14 +108,12 @@ export default function LoginScreen() {
         <Text style={styles.tagline}>{"For Ireland's rental generation"}</Text>
       </View>
 
-      {/* Form */}
       <ScrollView
         style={styles.formScroll}
         contentContainerStyle={[styles.formContent, { paddingBottom: insets.bottom + 32 }]}
         keyboardShouldPersistTaps="handled"
         showsVerticalScrollIndicator={false}
       >
-        {/* Tab switcher */}
         <View style={styles.tabRow}>
           <Pressable style={styles.tabBtn} onPress={() => setTab('signin')}>
             {tab === 'signin' ? (
@@ -235,7 +236,7 @@ export default function LoginScreen() {
           style={[styles.socialBtn, { ...(shadows.card as object) }]}
           onPress={() => Alert.alert('Coming soon', 'Apple Sign In is coming soon.')}
         >
-          <Text style={styles.socialIcon}>🍎</Text>
+          <Ionicons name="logo-apple" size={22} color={colors.ink} />
           <Text style={styles.socialText}>Continue with Apple</Text>
         </Pressable>
 
@@ -243,7 +244,7 @@ export default function LoginScreen() {
           style={[styles.socialBtn, { ...(shadows.card as object) }]}
           onPress={() => Alert.alert('Coming soon', 'Google Sign In is coming soon.')}
         >
-          <Text style={styles.socialIcon}>G</Text>
+          <Ionicons name="logo-google" size={20} color={colors.ink} />
           <Text style={styles.socialText}>Continue with Google</Text>
         </Pressable>
       </ScrollView>
@@ -251,119 +252,121 @@ export default function LoginScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: colors.surface },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    root: { flex: 1, backgroundColor: colors.surface },
 
-  darkPanel: {
-    height: 280,
-    backgroundColor: colors.jet,
-    paddingHorizontal: 24,
-    paddingBottom: 24,
-    justifyContent: 'space-between',
-  },
-  logo: {
-    ...(fonts.displayMd as object),
-    color: '#ffffff',
-  },
-  bullets: { gap: 8 },
-  bullet: {
-    ...(fonts.bodyMd as object),
-    color: colors.whiteHigh,
-  },
-  tagline: {
-    ...(fonts.labelMd as object),
-    color: colors.whiteLow,
-  },
+    darkPanel: {
+      height: 280,
+      backgroundColor: colors.jet,
+      paddingHorizontal: 24,
+      paddingBottom: 24,
+      justifyContent: 'space-between',
+    },
+    logo: {
+      ...(fonts.displayMd as object),
+      color: '#ffffff',
+    },
+    bullets: { gap: 8 },
+    bullet: {
+      ...(fonts.bodyMd as object),
+      color: colors.whiteHigh,
+    },
+    tagline: {
+      ...(fonts.labelMd as object),
+      color: colors.whiteLow,
+    },
 
-  formScroll: { flex: 1 },
-  formContent: { padding: 24, gap: 12 },
+    formScroll: { flex: 1 },
+    formContent: { padding: 24, gap: 12 },
 
-  tabRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 14,
-    padding: 4,
-    marginBottom: 8,
-  },
-  tabBtn: { flex: 1, borderRadius: 11, overflow: 'hidden' },
-  tabActive: {
-    height: 40,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 11,
-  },
-  tabActiveText: { ...(fonts.titleSm as object), color: '#ffffff' },
-  tabInactiveText: {
-    ...(fonts.titleSm as object),
-    color: colors.slateBrand,
-    textAlign: 'center',
-    lineHeight: 40,
-  },
+    tabRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 14,
+      padding: 4,
+      marginBottom: 8,
+    },
+    tabBtn: { flex: 1, borderRadius: 11, overflow: 'hidden' },
+    tabActive: {
+      height: 40,
+      alignItems: 'center',
+      justifyContent: 'center',
+      borderRadius: 11,
+    },
+    tabActiveText: { ...(fonts.titleSm as object), color: '#ffffff' },
+    tabInactiveText: {
+      ...(fonts.titleSm as object),
+      color: colors.slateBrand,
+      textAlign: 'center',
+      lineHeight: 40,
+    },
 
-  input: {
-    borderWidth: 1,
-    borderColor: `${colors.ghost}60`,
-    borderRadius: 14,
-    backgroundColor: colors.surfaceLow,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  phoneRow: { flexDirection: 'row', gap: 8 },
-  phonePrefix: {
-    borderWidth: 1,
-    borderColor: `${colors.ghost}60`,
-    borderRadius: 14,
-    backgroundColor: colors.surfaceLow,
-    paddingHorizontal: 14,
-    justifyContent: 'center',
-  },
-  phonePrefixText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-  phoneInput: { flex: 1 },
+    input: {
+      borderWidth: 1,
+      borderColor: `${colors.ghost}60`,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceLow,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+    },
+    phoneRow: { flexDirection: 'row', gap: 8 },
+    phonePrefix: {
+      borderWidth: 1,
+      borderColor: `${colors.ghost}60`,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceLow,
+      paddingHorizontal: 14,
+      justifyContent: 'center',
+    },
+    phonePrefixText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    phoneInput: { flex: 1 },
 
-  passwordRow: { position: 'relative' },
-  passwordInput: { paddingRight: 52 },
-  eyeBtn: {
-    position: 'absolute',
-    right: 16,
-    top: 0,
-    bottom: 0,
-    justifyContent: 'center',
-  },
-  eyeText: { fontSize: 18 },
+    passwordRow: { position: 'relative' },
+    passwordInput: { paddingRight: 52 },
+    eyeBtn: {
+      position: 'absolute',
+      right: 16,
+      top: 0,
+      bottom: 0,
+      justifyContent: 'center',
+    },
+    eyeText: { fontSize: 18 },
 
-  forgotRow: { alignItems: 'flex-end', marginTop: -4 },
-  forgotText: { ...(fonts.labelMd as object), color: colors.coral },
+    forgotRow: { alignItems: 'flex-end', marginTop: -4 },
+    forgotText: { ...(fonts.labelMd as object), color: colors.coral },
 
-  ctaBtn: { borderRadius: 16, overflow: 'hidden', ...shadows.coral },
-  ctaGradient: {
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaText: { ...(fonts.titleMd as object), color: '#ffffff' },
+    ctaBtn: { borderRadius: 16, overflow: 'hidden', ...shadows.coral },
+    ctaGradient: {
+      height: 56,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ctaText: { ...(fonts.titleMd as object), color: '#ffffff' },
 
-  dividerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    marginVertical: 4,
-  },
-  dividerLine: { flex: 1, height: 1, backgroundColor: `${colors.ghost}50` },
-  dividerText: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    dividerRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      marginVertical: 4,
+    },
+    dividerLine: { flex: 1, height: 1, backgroundColor: `${colors.ghost}50` },
+    dividerText: { ...(fonts.bodySm as object), color: colors.slateBrand },
 
-  socialBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 10,
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    height: 52,
-    borderWidth: 1,
-    borderColor: `${colors.ghost}40`,
-  },
-  socialIcon: { ...(fonts.titleMd as object), color: colors.ink },
-  socialText: { ...(fonts.titleSm as object), color: colors.ink },
-})
+    socialBtn: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: 10,
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      height: 52,
+      borderWidth: 1,
+      borderColor: `${colors.ghost}40`,
+    },
+    socialText: { ...(fonts.titleSm as object), color: colors.ink },
+  }), [colors])
+}

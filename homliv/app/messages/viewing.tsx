@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   View,
   Text,
@@ -17,9 +17,10 @@ import Animated, {
   interpolateColor,
 } from 'react-native-reanimated'
 import { LinearGradient } from 'expo-linear-gradient'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
+import { useTheme } from '../../src/hooks/useTheme'
 import { useChatStore } from '../../src/hooks/useChatStore'
 import { track } from '../../src/lib/analytics'
 
@@ -59,6 +60,8 @@ function NoteInput({
   value: string
   onChange: (v: string) => void
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const focus = useSharedValue(0)
 
   const animStyle = useAnimatedStyle(() => ({
@@ -81,6 +84,7 @@ function NoteInput({
 }
 
 export default function ViewingScreen() {
+  const styles = useStyles()
   const { convId } = useLocalSearchParams<{ convId: string }>()
   const [selectedDay, setSelectedDay] = useState<number>(0)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
@@ -121,7 +125,6 @@ export default function ViewingScreen() {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header */}
       <View style={styles.header}>
         <Pressable onPress={() => router.back()} style={styles.headerBtn} hitSlop={8}>
           <Text style={styles.headerClose}>✕</Text>
@@ -146,7 +149,6 @@ export default function ViewingScreen() {
       >
         <Text style={styles.sectionHint}>Select up to 3 time slots</Text>
 
-        {/* Day pills */}
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -171,7 +173,6 @@ export default function ViewingScreen() {
           })}
         </ScrollView>
 
-        {/* Time grid */}
         <View style={styles.timeGrid}>
           {TIME_OPTIONS.map((t) => {
             const active = selectedTime === t.label
@@ -189,7 +190,6 @@ export default function ViewingScreen() {
           })}
         </View>
 
-        {/* Add slot button */}
         {canAdd && (
           <TouchableOpacity onPress={addSlot} activeOpacity={0.85} style={styles.addSlotWrap}>
             <LinearGradient
@@ -203,7 +203,6 @@ export default function ViewingScreen() {
           </TouchableOpacity>
         )}
 
-        {/* Selected slots preview */}
         {slots.length > 0 && (
           <View style={styles.slotsPreview}>
             {slots.map((s, i) => (
@@ -217,7 +216,6 @@ export default function ViewingScreen() {
           </View>
         )}
 
-        {/* Note input */}
         <View style={styles.noteSection}>
           <NoteInput value={note} onChange={setNote} />
         </View>
@@ -228,160 +226,163 @@ export default function ViewingScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: colors.surface,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: colors.ghost,
-  },
-  headerBtn: {
-    minWidth: 48,
-  },
-  headerClose: {
-    ...(fonts.bodyMd as object),
-    color: colors.slateBrand,
-  },
-  headerTitle: {
-    ...(fonts.titleMd as object),
-    color: colors.ink,
-  },
-  headerSend: {
-    ...(fonts.titleSm as object),
-    color: colors.coral,
-    textAlign: 'right',
-  },
-  headerSendDisabled: {
-    opacity: 0.35,
-  },
-  scrollContent: {
-    paddingBottom: 20,
-  },
-  sectionHint: {
-    ...(fonts.bodyMd as object),
-    color: colors.slateBrand,
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 16,
-  },
-  daysRow: {
-    paddingHorizontal: 20,
-    gap: 8,
-  },
-  dayPill: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-    borderRadius: 20,
-    backgroundColor: colors.surfaceLow,
-    borderWidth: 1,
-    borderColor: colors.ghost,
-    minWidth: 52,
-  },
-  dayPillActive: {
-    backgroundColor: colors.jet,
-    borderColor: colors.jet,
-  },
-  dayPillTop: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-  },
-  dayPillBottom: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-    marginTop: 2,
-  },
-  dayPillTextActive: {
-    color: colors.surface,
-  },
-  timeGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-    paddingHorizontal: 20,
-    marginTop: 16,
-  },
-  timeCell: {
-    width: '47%',
-    height: 48,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceLow,
-    borderWidth: 1,
-    borderColor: colors.ghost,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  timeCellActive: {
-    backgroundColor: colors.jet,
-    borderColor: colors.jet,
-  },
-  timeCellText: {
-    ...(fonts.titleSm as object),
-    color: colors.slateBrand,
-  },
-  timeCellTextActive: {
-    color: colors.surface,
-  },
-  addSlotWrap: {
-    marginHorizontal: 20,
-    marginTop: 16,
-  },
-  addSlotBtn: {
-    height: 48,
-    borderRadius: 14,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  addSlotLabel: {
-    ...(fonts.titleSm as object),
-    color: colors.surface,
-  },
-  slotsPreview: {
-    marginHorizontal: 20,
-    marginTop: 16,
-    gap: 8,
-  },
-  slotRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderWidth: 1,
-    borderColor: colors.ghost,
-  },
-  slotText: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  slotRemove: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-  },
-  noteSection: {
-    marginHorizontal: 20,
-    marginTop: 24,
-  },
-  noteInput: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    minHeight: 88,
-    textAlignVertical: 'top',
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-    borderWidth: 1,
-    borderColor: colors.ghost,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    safeArea: {
+      flex: 1,
+      backgroundColor: colors.surface,
+    },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: colors.ghost,
+    },
+    headerBtn: {
+      minWidth: 48,
+    },
+    headerClose: {
+      ...(fonts.bodyMd as object),
+      color: colors.slateBrand,
+    },
+    headerTitle: {
+      ...(fonts.titleMd as object),
+      color: colors.ink,
+    },
+    headerSend: {
+      ...(fonts.titleSm as object),
+      color: colors.coral,
+      textAlign: 'right',
+    },
+    headerSendDisabled: {
+      opacity: 0.35,
+    },
+    scrollContent: {
+      paddingBottom: 20,
+    },
+    sectionHint: {
+      ...(fonts.bodyMd as object),
+      color: colors.slateBrand,
+      paddingHorizontal: 20,
+      paddingTop: 20,
+      paddingBottom: 16,
+    },
+    daysRow: {
+      paddingHorizontal: 20,
+      gap: 8,
+    },
+    dayPill: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 10,
+      paddingHorizontal: 14,
+      borderRadius: 20,
+      backgroundColor: colors.surfaceLow,
+      borderWidth: 1,
+      borderColor: colors.ghost,
+      minWidth: 52,
+    },
+    dayPillActive: {
+      backgroundColor: colors.jet,
+      borderColor: colors.jet,
+    },
+    dayPillTop: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+    },
+    dayPillBottom: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+      marginTop: 2,
+    },
+    dayPillTextActive: {
+      color: colors.surface,
+    },
+    timeGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+      paddingHorizontal: 20,
+      marginTop: 16,
+    },
+    timeCell: {
+      width: '47%',
+      height: 48,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceLow,
+      borderWidth: 1,
+      borderColor: colors.ghost,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    timeCellActive: {
+      backgroundColor: colors.jet,
+      borderColor: colors.jet,
+    },
+    timeCellText: {
+      ...(fonts.titleSm as object),
+      color: colors.slateBrand,
+    },
+    timeCellTextActive: {
+      color: colors.surface,
+    },
+    addSlotWrap: {
+      marginHorizontal: 20,
+      marginTop: 16,
+    },
+    addSlotBtn: {
+      height: 48,
+      borderRadius: 14,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    addSlotLabel: {
+      ...(fonts.titleSm as object),
+      color: colors.surface,
+    },
+    slotsPreview: {
+      marginHorizontal: 20,
+      marginTop: 16,
+      gap: 8,
+    },
+    slotRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 12,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderWidth: 1,
+      borderColor: colors.ghost,
+    },
+    slotText: {
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+    },
+    slotRemove: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+    },
+    noteSection: {
+      marginHorizontal: 20,
+      marginTop: 24,
+    },
+    noteInput: {
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      minHeight: 88,
+      textAlignVertical: 'top',
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+      borderWidth: 1,
+      borderColor: colors.ghost,
+    },
+  }), [colors])
+}

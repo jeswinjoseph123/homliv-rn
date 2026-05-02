@@ -1,8 +1,8 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 import { formatPrice } from '../../lib/utils'
 import type { Listing } from '../../types'
@@ -13,6 +13,8 @@ type Props = {
 }
 
 export const ListingPin = memo(function ListingPin({ listing, onPress }: Props) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const photo = listing.photos[0] ?? undefined
 
   return (
@@ -33,36 +35,22 @@ export const ListingPin = memo(function ListingPin({ listing, onPress }: Props) 
   )
 })
 
-const styles = StyleSheet.create({
-  container: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    padding: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: 1,
-    borderBottomColor: `${colors.ghost}20`,
-  },
-  thumb: {
-    width: 56,
-    height: 56,
-    borderRadius: 12,
-  },
-  info: {
-    flex: 1,
-    gap: 2,
-  },
-  title: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  price: {
-    ...(fonts.bodySm as object),
-    color: colors.coral,
-    fontWeight: '700',
-  },
-  location: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      padding: 12,
+      backgroundColor: colors.surface,
+      borderBottomWidth: 1,
+      borderBottomColor: `${colors.ghost}20`,
+    },
+    thumb: { width: 56, height: 56, borderRadius: 12 },
+    info: { flex: 1, gap: 2 },
+    title: { ...(fonts.titleSm as object), color: colors.jet },
+    price: { ...(fonts.bodySm as object), color: colors.coral, fontWeight: '700' },
+    location: { ...(fonts.labelSm as object), color: colors.slateBrand },
+  }), [colors])
+}

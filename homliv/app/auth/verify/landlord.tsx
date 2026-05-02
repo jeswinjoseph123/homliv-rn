@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -12,9 +12,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
 import * as DocumentPicker from 'expo-document-picker'
-import { colors, gradients } from '../../../src/constants/colors'
+import { gradients } from '../../../src/constants/colors'
 import { fonts } from '../../../src/constants/typography'
 import { shadows } from '../../../src/constants/shadows'
+import { useTheme } from '../../../src/hooks/useTheme'
 import { useSession } from '../../../src/hooks/useSession'
 import { WizardHeader } from '../../../src/components/post/WizardHeader'
 import { track } from '../../../src/lib/analytics'
@@ -38,6 +39,8 @@ const STEP_TITLES: Record<Step, string> = {
 }
 
 export default function VerifyLandlordScreen() {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { user, setUser } = useSession()
@@ -279,6 +282,7 @@ export default function VerifyLandlordScreen() {
 }
 
 function SummaryRow({ label, value }: { label: string; value: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.summaryRow}>
       <Text style={styles.summaryLabel}>{label}</Text>
@@ -287,92 +291,95 @@ function SummaryRow({ label, value }: { label: string; value: string }) {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
 
-  scroll: { padding: 20, gap: 16 },
-  stepBody: { gap: 20 },
-  stepHeading: { ...(fonts.titleLg as object), color: colors.jet },
-  stepSub: { ...(fonts.bodyMd as object), color: colors.slateBrand, marginTop: -8 },
+    scroll: { padding: 20, gap: 16 },
+    stepBody: { gap: 20 },
+    stepHeading: { ...(fonts.titleLg as object), color: colors.jet },
+    stepSub: { ...(fonts.bodyMd as object), color: colors.slateBrand, marginTop: -8 },
 
-  fieldGroup: { gap: 8 },
-  label: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  input: {
-    borderWidth: 1,
-    borderColor: `${colors.ghost}60`,
-    borderRadius: 14,
-    backgroundColor: colors.surfaceLow,
-    paddingHorizontal: 16,
-    paddingVertical: 16,
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  textArea: { height: 88, textAlignVertical: 'top' },
+    fieldGroup: { gap: 8 },
+    label: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    input: {
+      borderWidth: 1,
+      borderColor: `${colors.ghost}60`,
+      borderRadius: 14,
+      backgroundColor: colors.surfaceLow,
+      paddingHorizontal: 16,
+      paddingVertical: 16,
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+    },
+    textArea: { height: 88, textAlignVertical: 'top' },
 
-  docCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.greenBg,
-    borderRadius: 14,
-    padding: 16,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: `${colors.green}30`,
-    ...(shadows.card as object),
-  },
-  docIcon: { fontSize: 28 },
-  docInfo: { flex: 1, gap: 2 },
-  docName: { ...(fonts.titleSm as object), color: colors.jet },
-  docSubText: { ...(fonts.bodySm as object), color: colors.green },
-  docRemove: { ...(fonts.titleMd as object), color: colors.slateBrand },
+    docCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.greenBg,
+      borderRadius: 14,
+      padding: 16,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: `${colors.green}30`,
+      ...(shadows.card as object),
+    },
+    docIcon: { fontSize: 28 },
+    docInfo: { flex: 1, gap: 2 },
+    docName: { ...(fonts.titleSm as object), color: colors.jet },
+    docSubText: { ...(fonts.bodySm as object), color: colors.green },
+    docRemove: { ...(fonts.titleMd as object), color: colors.slateBrand },
 
-  uploadBtn: {
-    borderWidth: 1.5,
-    borderColor: `${colors.ghost}60`,
-    borderRadius: 14,
-    borderStyle: 'dashed',
-    backgroundColor: colors.surfaceLow,
-    paddingVertical: 32,
-    alignItems: 'center',
-    gap: 8,
-  },
-  uploadIcon: { fontSize: 32 },
-  uploadLabel: { ...(fonts.titleSm as object), color: colors.jet },
-  uploadSub: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    uploadBtn: {
+      borderWidth: 1.5,
+      borderColor: `${colors.ghost}60`,
+      borderRadius: 14,
+      borderStyle: 'dashed',
+      backgroundColor: colors.surfaceLow,
+      paddingVertical: 32,
+      alignItems: 'center',
+      gap: 8,
+    },
+    uploadIcon: { fontSize: 32 },
+    uploadLabel: { ...(fonts.titleSm as object), color: colors.jet },
+    uploadSub: { ...(fonts.bodySm as object), color: colors.slateBrand },
 
-  bankNote: {
-    backgroundColor: colors.amberBg,
-    borderRadius: 12,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: `${colors.amber}30`,
-  },
-  bankNoteText: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    bankNote: {
+      backgroundColor: colors.amberBg,
+      borderRadius: 12,
+      padding: 12,
+      borderWidth: 1,
+      borderColor: `${colors.amber}30`,
+    },
+    bankNoteText: { ...(fonts.bodySm as object), color: colors.slateBrand },
 
-  summaryCard: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 16,
-    padding: 16,
-    gap: 8,
-    ...(shadows.card as object),
-  },
-  summaryRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
-  summaryLabel: { ...(fonts.bodySm as object), color: colors.slateBrand, flex: 0.4 },
-  summaryValue: { ...(fonts.bodySm as object), color: colors.ink, flex: 0.6, textAlign: 'right' },
+    summaryCard: {
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 16,
+      padding: 16,
+      gap: 8,
+      ...(shadows.card as object),
+    },
+    summaryRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 16,
+    },
+    summaryLabel: { ...(fonts.bodySm as object), color: colors.slateBrand, flex: 0.4 },
+    summaryValue: { ...(fonts.bodySm as object), color: colors.ink, flex: 0.6, textAlign: 'right' },
 
-  submitBtn: { borderRadius: 18, overflow: 'hidden', ...shadows.coral },
-  submitGradient: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  submitText: { ...(fonts.titleMd as object), color: '#ffffff' },
+    submitBtn: { borderRadius: 18, overflow: 'hidden', ...shadows.coral },
+    submitGradient: { height: 56, alignItems: 'center', justifyContent: 'center' },
+    submitText: { ...(fonts.titleMd as object), color: '#ffffff' },
 
-  successBlock: { alignItems: 'center', paddingTop: 40, gap: 16 },
-  successIcon: { fontSize: 64 },
-  successHeading: { ...(fonts.displayMd as object), color: colors.jet },
-  successSub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-  doneBtn: { width: '100%', borderRadius: 18, overflow: 'hidden', marginTop: 8, ...shadows.coral },
-  doneBtnGradient: { height: 56, alignItems: 'center', justifyContent: 'center' },
-  doneBtnText: { ...(fonts.titleMd as object), color: '#ffffff' },
-})
+    successBlock: { alignItems: 'center', paddingTop: 40, gap: 16 },
+    successIcon: { fontSize: 64 },
+    successHeading: { ...(fonts.displayMd as object), color: colors.jet },
+    successSub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+    doneBtn: { width: '100%', borderRadius: 18, overflow: 'hidden', marginTop: 8, ...shadows.coral },
+    doneBtnGradient: { height: 56, alignItems: 'center', justifyContent: 'center' },
+    doneBtnText: { ...(fonts.titleMd as object), color: '#ffffff' },
+  }), [colors])
+}

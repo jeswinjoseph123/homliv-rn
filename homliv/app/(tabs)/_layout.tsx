@@ -1,132 +1,44 @@
-import { Tabs } from 'expo-router'
-import { View, StyleSheet, TouchableOpacity, Text, Platform } from 'react-native'
-import { BlurView } from 'expo-blur'
-import { LinearGradient } from 'expo-linear-gradient'
-import { Ionicons } from '@expo/vector-icons'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors, gradients } from '../../src/constants/colors'
-import { shadows } from '../../src/constants/shadows'
-import { fonts } from '../../src/constants/typography'
-
-type TabBarIconProps = {
-  name: React.ComponentProps<typeof Ionicons>['name']
-  color: string
-}
-
-function TabIcon({ name, color }: TabBarIconProps) {
-  return <Ionicons name={name} size={24} color={color} />
-}
-
-function PostButton({ onPress }: { onPress: () => void }) {
-  return (
-    <TouchableOpacity onPress={onPress} style={styles.postButtonWrapper} activeOpacity={0.9}>
-      <LinearGradient
-        colors={gradients.coral}
-        style={styles.postButton}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-      >
-        <Text style={styles.postIcon}>+</Text>
-      </LinearGradient>
-    </TouchableOpacity>
-  )
-}
+import { Redirect } from 'expo-router'
+import { NativeTabs, Icon, Label } from 'expo-router/unstable-native-tabs'
+import { View } from 'react-native'
+import { useSession } from '../../src/hooks/useSession'
+import { useTheme } from '../../src/hooks/useTheme'
 
 export default function TabLayout() {
-  const insets = useSafeAreaInsets()
-  const tabBarHeight = 56 + insets.bottom
+  const user = useSession((s) => s.user)
+  const hasHydrated = useSession((s) => s.hasHydrated)
+  const { colors } = useTheme()
+
+  if (!hasHydrated) return <View style={{ flex: 1, backgroundColor: colors.surface }} />
+
+  if (!user) return <Redirect href="/onboarding" />
 
   return (
-    <Tabs
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          position: 'absolute',
-          height: tabBarHeight,
-          borderTopWidth: 0,
-          backgroundColor: 'transparent',
-          elevation: 0,
-        },
-        tabBarBackground: () => (
-          <BlurView
-            intensity={80}
-            tint="light"
-            style={[StyleSheet.absoluteFill, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: `${colors.ghost}40` }]}
-          />
-        ),
-        tabBarActiveTintColor: colors.coral,
-        tabBarInactiveTintColor: colors.slateBrand,
-        tabBarLabelStyle: { ...(fonts.labelSm as object), marginBottom: 4 },
-      }}
-    >
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: 'Feed',
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'home' : 'home-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="search"
-        options={{
-          title: 'Search',
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'search' : 'search-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="post"
-        options={{
-          title: '',
-          tabBarButton: (props) => (
-            <PostButton onPress={() => props.onPress?.({} as never)} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="messages"
-        options={{
-          title: 'Messages',
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'chatbubble' : 'chatbubble-outline'} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="me"
-        options={{
-          title: 'Me',
-          tabBarIcon: ({ color, focused }) => (
-            <TabIcon name={focused ? 'person' : 'person-outline'} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    <NativeTabs tintColor={colors.coral}>
+      <NativeTabs.Trigger name="index">
+        <Icon sf={{ default: 'house', selected: 'house.fill' }} />
+        <Label>Feed</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="search">
+        <Icon sf={{ default: 'magnifyingglass', selected: 'magnifyingglass.circle.fill' }} />
+        <Label>Search</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="post">
+        <Icon sf={{ default: 'plus.circle', selected: 'plus.circle.fill' }} />
+        <Label>Post</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="messages">
+        <Icon sf={{ default: 'message', selected: 'message.fill' }} />
+        <Label>Messages</Label>
+      </NativeTabs.Trigger>
+
+      <NativeTabs.Trigger name="me">
+        <Icon sf={{ default: 'person', selected: 'person.fill' }} />
+        <Label>Me</Label>
+      </NativeTabs.Trigger>
+    </NativeTabs>
   )
 }
-
-const styles = StyleSheet.create({
-  postButtonWrapper: {
-    alignItems: 'center',
-    justifyContent: 'flex-start',
-    paddingTop: 4,
-    marginTop: -8,
-  },
-  postButton: {
-    width: 56,
-    height: 56,
-    borderRadius: 20,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...shadows.coral,
-  },
-  postIcon: {
-    color: colors.surface,
-    fontSize: 28,
-    fontWeight: '300',
-    marginTop: -2,
-  },
-})

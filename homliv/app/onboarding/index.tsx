@@ -1,43 +1,47 @@
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { View, Text, Pressable, ScrollView, StyleSheet, Dimensions } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
+import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
+import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
+import { useTheme } from '../../src/hooks/useTheme'
 
-const { width: W } = Dimensions.get('window')
-const SCREENS = 3
+const { width: W, height: H } = Dimensions.get('window')
 
-function FeatureRow({ icon, title, body }: { icon: string; title: string; body: string }) {
+const SLIDES = [
+  {
+    image: 'https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?w=900&q=80',
+    label: '01',
+    heading: 'Find your\nhome in Ireland',
+    body: 'Thousands of verified listings — apartments, rooms, and houses. No middlemen.',
+    feature: '✓ BER rated · ✓ No agency fees · ✓ Verified landlords',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=900&q=80',
+    label: '02',
+    heading: 'Direct.\nNo agents.',
+    body: 'Message landlords instantly. Real people, real responses. Viewings in one tap.',
+    feature: '✓ Instant chat · ✓ Viewing requests · ✓ Read receipts',
+  },
+  {
+    image: 'https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=900&q=80',
+    label: '03',
+    heading: 'Own a\nproperty?',
+    body: 'Manage rentals from your phone. RTB-compliant, maintenance tracking, rent ledger.',
+    feature: '✓ RTB compliant · ✓ Maintenance tracker · ✓ Rent ledger',
+  },
+]
+
+function Dots({ active }: { active: number }) {
+  const styles = useStyles()
   return (
-    <View style={styles.featureRow} accessible accessibilityLabel={`${title}: ${body}`}>
-      <View style={styles.featureIcon}>
-        <Text style={{ fontSize: 22 }}>{icon}</Text>
-      </View>
-      <View style={styles.featureText}>
-        <Text style={styles.featureTitle}>{title}</Text>
-        <Text style={styles.featureBody}>{body}</Text>
-      </View>
-    </View>
-  )
-}
-
-function Dots({ active, dark }: { active: number; dark?: boolean }) {
-  return (
-    <View
-      style={styles.dots}
-      accessibilityLabel={`Page ${active + 1} of ${SCREENS}`}
-      accessibilityRole="none"
-    >
-      {Array.from({ length: SCREENS }).map((_, i) => (
+    <View style={styles.dots} accessibilityLabel={`Page ${active + 1} of ${SLIDES.length}`}>
+      {SLIDES.map((_, i) => (
         <View
           key={i}
-          style={[
-            styles.dot,
-            dark ? styles.dotDark : styles.dotLight,
-            i === active && (dark ? styles.dotActiveDark : styles.dotActiveLight),
-          ]}
+          style={[styles.dot, i === active && styles.dotActive]}
         />
       ))}
     </View>
@@ -45,6 +49,7 @@ function Dots({ active, dark }: { active: number; dark?: boolean }) {
 }
 
 export default function OnboardingScreen() {
+  const styles = useStyles()
   const router = useRouter()
   const scrollRef = useRef<ScrollView>(null)
   const [page, setPage] = useState(0)
@@ -56,10 +61,7 @@ export default function OnboardingScreen() {
 
   const goToAuth = () => router.replace('/auth/login')
 
-  const handleScrollEnd = (e: { nativeEvent: { contentOffset: { x: number } } }) => {
-    const idx = Math.round(e.nativeEvent.contentOffset.x / W)
-    if (idx !== page) setPage(idx)
-  }
+  const isLast = page === SLIDES.length - 1
 
   return (
     <View style={styles.root}>
@@ -68,314 +70,182 @@ export default function OnboardingScreen() {
         horizontal
         pagingEnabled
         showsHorizontalScrollIndicator={false}
-        onMomentumScrollEnd={handleScrollEnd}
+        onMomentumScrollEnd={(e) => {
+          const idx = Math.round(e.nativeEvent.contentOffset.x / W)
+          if (idx !== page) setPage(idx)
+        }}
         scrollEventThrottle={16}
         decelerationRate="fast"
       >
-        {/* Screen 1: Welcome */}
-        <LinearGradient
-          colors={gradients.dark}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
-          style={styles.screen}
-        >
-          <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-            <Pressable
-              onPress={goToAuth}
-              style={styles.skipBtn}
-              accessibilityLabel="Skip onboarding"
-              accessibilityRole="button"
-              hitSlop={12}
-            >
-              <Text style={styles.skipDark}>Skip</Text>
-            </Pressable>
+        {SLIDES.map((slide, i) => (
+          <View key={i} style={styles.slide}>
+            <Image
+              source={{ uri: slide.image }}
+              contentFit="cover"
+              cachePolicy="memory-disk"
+              style={StyleSheet.absoluteFill}
+            />
 
-            <View style={styles.welcomeMain}>
-              <View style={styles.logoWrap}>
-                <Text style={styles.logoEmoji}>🏠</Text>
+            <LinearGradient
+              colors={['rgba(0,0,0,0.05)', 'rgba(0,0,0,0.55)', 'rgba(0,0,0,0.88)']}
+              locations={[0, 0.45, 1]}
+              style={StyleSheet.absoluteFill}
+            />
+
+            <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
+              <View style={styles.topBar}>
+                <Text style={styles.brand}>
+                  <Text style={styles.brandHom}>Hom</Text>
+                  <Text style={styles.brandLiv}>Liv</Text>
+                </Text>
+                <Pressable
+                  onPress={goToAuth}
+                  hitSlop={12}
+                  accessibilityLabel="Skip onboarding"
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.skip}>Skip</Text>
+                </Pressable>
               </View>
-              <Text style={styles.logoName}>HomLiv</Text>
-              <Text style={styles.tagline}>Ireland's honest{'\n'}rental platform</Text>
 
-              <View style={styles.previewCard}>
-                <LinearGradient
-                  colors={gradients.slate}
-                  style={styles.previewImg}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 1 }}
-                />
-                <View style={styles.previewBody}>
-                  <Text style={styles.previewTitle} numberOfLines={1}>2-bed apartment, Grand Canal Dock</Text>
-                  <Text style={styles.previewPrice}>€2,200/mo</Text>
-                  <Text style={styles.previewMeta}>📍 Dublin 2  ·  BER A2  ·  ✅ Verified</Text>
+              <View style={styles.content}>
+                <Text style={styles.slideNum}>{slide.label}</Text>
+                <Text style={styles.heading}>{slide.heading}</Text>
+                <Text style={styles.body}>{slide.body}</Text>
+                <View style={styles.featureTag}>
+                  <Text style={styles.featureText}>{slide.feature}</Text>
                 </View>
+
+                <Dots active={page} />
+
+                {isLast ? (
+                  <View style={styles.ctaGroup}>
+                    <LinearGradient
+                      colors={gradients.coral}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 1, y: 0 }}
+                      style={styles.ctaGrad}
+                    >
+                      <Pressable
+                        onPress={goToAuth}
+                        style={styles.ctaBtn}
+                        accessibilityLabel="Get started with HomLiv"
+                        accessibilityRole="button"
+                      >
+                        <Text style={styles.ctaBtnText}>Get started</Text>
+                      </Pressable>
+                    </LinearGradient>
+                    <Pressable
+                      onPress={goToAuth}
+                      style={styles.signInBtn}
+                      accessibilityLabel="Sign in to HomLiv"
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.signInText}>Already have an account? Sign in</Text>
+                    </Pressable>
+                  </View>
+                ) : (
+                  <Pressable
+                    onPress={() => goTo(i + 1)}
+                    style={styles.nextBtn}
+                    accessibilityLabel="Next slide"
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.nextBtnText}>Next  →</Text>
+                  </Pressable>
+                )}
               </View>
-            </View>
-
-            <View style={styles.bottomActions}>
-              <LinearGradient
-                colors={gradients.coral}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.coralGrad}
-              >
-                <Pressable
-                  onPress={goToAuth}
-                  style={styles.fullBtn}
-                  accessibilityLabel="Get started with HomLiv"
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.fullBtnText}>Get started</Text>
-                </Pressable>
-              </LinearGradient>
-              <Pressable
-                onPress={goToAuth}
-                style={styles.outlineBtn}
-                accessibilityLabel="Sign in to HomLiv"
-                accessibilityRole="button"
-              >
-                <Text style={styles.outlineBtnText}>Sign in</Text>
-              </Pressable>
-              <Dots active={page} dark />
-            </View>
-          </SafeAreaView>
-        </LinearGradient>
-
-        {/* Screen 2: Find your room */}
-        <View style={[styles.screen, styles.lightBg]}>
-          <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-            <Pressable
-              onPress={goToAuth}
-              style={styles.skipBtn}
-              accessibilityLabel="Skip onboarding"
-              accessibilityRole="button"
-              hitSlop={12}
-            >
-              <Text style={styles.skipLight}>Skip</Text>
-            </Pressable>
-
-            <View style={styles.lightMain}>
-              <Text style={styles.lightHeading}>Find your room{'\n'}in Ireland</Text>
-              <Text style={styles.lightSub}>Thousands of verified listings. No middlemen.</Text>
-              <View style={styles.features}>
-                <FeatureRow icon="🔍" title="Verified listings" body="Every landlord is identity-checked before listing." />
-                <FeatureRow icon="💬" title="Direct chat" body="Message landlords directly. No agents or fees." />
-                <FeatureRow icon="❤️" title="Save and search" body="Set alerts for your perfect room and get notified." />
-              </View>
-            </View>
-
-            <View style={styles.bottomActions}>
-              <Pressable
-                onPress={() => goTo(2)}
-                style={styles.nextBtn}
-                accessibilityLabel="Next screen"
-                accessibilityRole="button"
-              >
-                <Text style={styles.nextBtnText}>Next →</Text>
-              </Pressable>
-              <Dots active={page} />
-            </View>
-          </SafeAreaView>
-        </View>
-
-        {/* Screen 3: Own a property */}
-        <View style={[styles.screen, styles.lightBg]}>
-          <SafeAreaView style={styles.safeArea} edges={['top', 'bottom']}>
-            <Pressable
-              onPress={goToAuth}
-              style={styles.skipBtn}
-              accessibilityLabel="Skip onboarding"
-              accessibilityRole="button"
-              hitSlop={12}
-            >
-              <Text style={styles.skipLight}>Skip</Text>
-            </Pressable>
-
-            <View style={styles.lightMain}>
-              <Text style={styles.lightHeading}>Own a{'\n'}property?</Text>
-              <Text style={styles.lightSub}>Manage your rentals simply, from your phone.</Text>
-              <View style={styles.features}>
-                <FeatureRow icon="📋" title="RTB-compliant" body="Listings follow Irish rental law by default." />
-                <FeatureRow icon="🔧" title="Maintenance tracking" body="Log and resolve maintenance requests instantly." />
-                <FeatureRow icon="💳" title="Rent ledger" body="Track payments and keep records in one place." />
-              </View>
-            </View>
-
-            <View style={styles.bottomActions}>
-              <LinearGradient
-                colors={gradients.coral}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.coralGrad}
-              >
-                <Pressable
-                  onPress={goToAuth}
-                  style={styles.fullBtn}
-                  accessibilityLabel="Start browsing HomLiv"
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.fullBtnText}>Start browsing</Text>
-                </Pressable>
-              </LinearGradient>
-              <Pressable
-                onPress={goToAuth}
-                accessibilityLabel="Already have an account? Sign in"
-                accessibilityRole="button"
-                hitSlop={8}
-              >
-                <Text style={styles.signInLink}>Already have an account? Sign in</Text>
-              </Pressable>
-              <Dots active={page} />
-            </View>
-          </SafeAreaView>
-        </View>
+            </SafeAreaView>
+          </View>
+        ))}
       </ScrollView>
     </View>
   )
 }
 
-const styles = StyleSheet.create({
-  root: { flex: 1 },
-  screen: { width: W, flex: 1 },
-  lightBg: { backgroundColor: colors.surfaceLow },
-  safeArea: { flex: 1 },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    root: { flex: 1 },
+    slide: { width: W, height: H },
+    safeArea: { flex: 1, justifyContent: 'space-between' },
 
-  skipBtn: {
-    position: 'absolute',
-    top: 0,
-    right: 20,
-    zIndex: 10,
-    paddingVertical: 8,
-  },
-  skipDark: { ...(fonts.labelMd as object), color: colors.whiteMid },
-  skipLight: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    topBar: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 24,
+      paddingTop: 8,
+    },
+    brand: { ...(fonts.titleLg as object) },
+    brandHom: { color: '#ffffff' },
+    brandLiv: { color: colors.coral },
+    skip: { ...(fonts.labelMd as object), color: colors.whiteMid },
 
-  // Screen 1
-  welcomeMain: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    gap: 16,
-  },
-  logoWrap: {
-    width: 72,
-    height: 72,
-    borderRadius: 20,
-    backgroundColor: colors.whiteLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  logoEmoji: { fontSize: 36 },
-  logoName: {
-    ...(fonts.displayLg as object),
-    color: colors.coral,
-    letterSpacing: -1,
-  },
-  tagline: {
-    ...(fonts.titleLg as object),
-    color: colors.whiteHigh,
-    textAlign: 'center',
-    lineHeight: 32,
-  },
-  previewCard: {
-    width: '100%',
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginTop: 8,
-  },
-  previewImg: { height: 120, width: '100%' },
-  previewBody: { padding: 12, gap: 3 },
-  previewTitle: { ...(fonts.titleSm as object), color: colors.jet },
-  previewPrice: { ...(fonts.price as object), color: colors.coral, fontSize: 16 },
-  previewMeta: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    content: {
+      paddingHorizontal: 24,
+      paddingBottom: 16,
+      gap: 12,
+    },
+    slideNum: {
+      ...(fonts.labelSm as object),
+      color: colors.coral,
+      letterSpacing: 2,
+    },
+    heading: {
+      ...(fonts.displayMd as object),
+      color: '#ffffff',
+      lineHeight: 44,
+    },
+    body: {
+      ...(fonts.bodyLg as object),
+      color: colors.whiteHigh,
+      lineHeight: 24,
+    },
+    featureTag: {
+      alignSelf: 'flex-start',
+      backgroundColor: 'rgba(255,255,255,0.12)',
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderWidth: 1,
+      borderColor: 'rgba(255,255,255,0.18)',
+    },
+    featureText: { ...(fonts.labelSm as object), color: colors.whiteHigh },
 
-  // Bottom actions
-  bottomActions: {
-    paddingHorizontal: 24,
-    paddingBottom: 16,
-    gap: 12,
-    alignItems: 'center',
-  },
-  coralGrad: { width: '100%', borderRadius: 16 },
-  fullBtn: {
-    paddingVertical: 16,
-    alignItems: 'center',
-    minHeight: 52,
-    justifyContent: 'center',
-  },
-  fullBtnText: { ...(fonts.titleSm as object), color: '#ffffff' },
-  outlineBtn: {
-    width: '100%',
-    paddingVertical: 14,
-    alignItems: 'center',
-    borderRadius: 16,
-    borderWidth: 1.5,
-    borderColor: colors.whiteLow,
-    minHeight: 52,
-    justifyContent: 'center',
-  },
-  outlineBtnText: { ...(fonts.titleSm as object), color: colors.whiteHigh },
-  signInLink: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    dots: { flexDirection: 'row', gap: 6, paddingVertical: 4 },
+    dot: {
+      width: 6,
+      height: 6,
+      borderRadius: 3,
+      backgroundColor: 'rgba(255,255,255,0.35)',
+    },
+    dotActive: {
+      backgroundColor: colors.coral,
+      width: 20,
+    },
 
-  // Screen 2 & 3
-  lightMain: {
-    flex: 1,
-    paddingHorizontal: 32,
-    paddingTop: 64,
-    gap: 8,
-  },
-  lightHeading: {
-    ...(fonts.displayMd as object),
-    color: colors.jet,
-    lineHeight: 44,
-    marginBottom: 4,
-  },
-  lightSub: {
-    ...(fonts.bodyLg as object),
-    color: colors.slateBrand,
-    marginBottom: 16,
-  },
-  features: { gap: 16 },
-  featureRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 16,
-  },
-  featureIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  featureText: { flex: 1, gap: 2 },
-  featureTitle: { ...(fonts.titleSm as object), color: colors.jet },
-  featureBody: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    ctaGroup: { gap: 12 },
+    ctaGrad: { borderRadius: 16 },
+    ctaBtn: {
+      height: 56,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ctaBtnText: { ...(fonts.titleMd as object), color: '#ffffff' },
 
-  nextBtn: {
-    width: '100%',
-    paddingVertical: 16,
-    alignItems: 'center',
-    borderRadius: 16,
-    backgroundColor: colors.jet,
-    minHeight: 52,
-    justifyContent: 'center',
-  },
-  nextBtnText: { ...(fonts.titleSm as object), color: '#ffffff' },
+    signInBtn: { alignItems: 'center', paddingVertical: 8 },
+    signInText: { ...(fonts.bodyMd as object), color: colors.whiteMid },
 
-  // Dots
-  dots: {
-    flexDirection: 'row',
-    gap: 6,
-    justifyContent: 'center',
-    paddingVertical: 4,
-  },
-  dot: { width: 6, height: 6, borderRadius: 3 },
-  dotDark: { backgroundColor: 'rgba(255,255,255,0.3)' },
-  dotActiveDark: { backgroundColor: '#ffffff', width: 20 },
-  dotLight: { backgroundColor: `${colors.slateBrand}40` },
-  dotActiveLight: { backgroundColor: colors.coral, width: 20 },
-})
+    nextBtn: {
+      height: 56,
+      borderRadius: 16,
+      borderWidth: 1.5,
+      borderColor: 'rgba(255,255,255,0.30)',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: 'rgba(255,255,255,0.10)',
+    },
+    nextBtnText: { ...(fonts.titleSm as object), color: '#ffffff' },
+  }), [colors])
+}

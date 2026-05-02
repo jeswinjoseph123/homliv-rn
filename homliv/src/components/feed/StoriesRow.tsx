@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { ScrollView, View, Text, TouchableOpacity, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { BlurView } from 'expo-blur'
@@ -9,7 +10,8 @@ import Animated, {
   interpolate,
 } from 'react-native-reanimated'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../constants/colors'
+import { gradients } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 import { track } from '../../lib/analytics'
 import { mockListings } from '../../data/listings'
@@ -22,6 +24,8 @@ const recentListings = [...mockListings]
   .slice(0, 7)
 
 function StoryItem({ listing }: { listing: Listing }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const router = useRouter()
   const seenProgress = useSharedValue(0)
 
@@ -44,7 +48,6 @@ function StoryItem({ listing }: { listing: Listing }) {
   return (
     <TouchableOpacity onPress={handlePress} activeOpacity={0.85} style={styles.storyWrapper}>
       <View style={styles.ringContainer}>
-        {/* Gradient ring — unseen state */}
         <Animated.View style={[StyleSheet.absoluteFill, gradientStyle]}>
           <LinearGradient
             colors={gradients.ring}
@@ -53,7 +56,6 @@ function StoryItem({ listing }: { listing: Listing }) {
             style={[StyleSheet.absoluteFill, { borderRadius: 20 }]}
           />
         </Animated.View>
-        {/* Ghost border — seen state */}
         <Animated.View
           style={[
             StyleSheet.absoluteFill,
@@ -61,7 +63,6 @@ function StoryItem({ listing }: { listing: Listing }) {
             ghostStyle,
           ]}
         />
-        {/* Image with white inner border */}
         <View style={styles.imageContainer}>
           <Image
             source={{ uri: photo }}
@@ -83,6 +84,7 @@ function StoryItem({ listing }: { listing: Listing }) {
 }
 
 export function StoriesRow() {
+  const styles = useStyles()
   return (
     <View style={styles.section}>
       <Text style={styles.sectionLabel}>🔥 Last 24 hours near you</Text>
@@ -99,63 +101,49 @@ export function StoriesRow() {
   )
 }
 
-const styles = StyleSheet.create({
-  section: { marginTop: 8 },
-  sectionLabel: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-    paddingHorizontal: 16,
-    marginBottom: 12,
-  },
-  scrollContent: {
-    paddingHorizontal: 16,
-    gap: 12,
-    alignItems: 'flex-start',
-  },
-  storyWrapper: {
-    alignItems: 'center',
-    width: 68,
-  },
-  ringContainer: {
-    width: 68,
-    height: 68,
-    borderRadius: 20,
-    overflow: 'hidden',
-  },
-  imageContainer: {
-    position: 'absolute',
-    top: 3,
-    left: 3,
-    right: 3,
-    bottom: 3,
-    borderRadius: 16,
-    overflow: 'hidden',
-    borderWidth: 2.5,
-    borderColor: 'white',
-  },
-  priceChip: {
-    position: 'absolute',
-    bottom: 3,
-    left: 3,
-    right: 3,
-    height: 16,
-    borderRadius: 5,
-    overflow: 'hidden',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  priceText: {
-    fontSize: 9,
-    fontWeight: '700',
-    color: 'white',
-    zIndex: 1,
-  },
-  storyName: {
-    ...(fonts.bodySm as object),
-    fontSize: 10,
-    color: colors.slateBrand,
-    marginTop: 6,
-    maxWidth: 68,
-    textAlign: 'center',
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    section: { marginTop: 8 },
+    sectionLabel: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+      paddingHorizontal: 16,
+      marginBottom: 12,
+    },
+    scrollContent: { paddingHorizontal: 16, gap: 12, alignItems: 'flex-start' },
+    storyWrapper: { alignItems: 'center', width: 68 },
+    ringContainer: { width: 68, height: 68, borderRadius: 20, overflow: 'hidden' },
+    imageContainer: {
+      position: 'absolute',
+      top: 3,
+      left: 3,
+      right: 3,
+      bottom: 3,
+      borderRadius: 16,
+      overflow: 'hidden',
+      borderWidth: 2.5,
+      borderColor: 'white',
+    },
+    priceChip: {
+      position: 'absolute',
+      bottom: 3,
+      left: 3,
+      right: 3,
+      height: 16,
+      borderRadius: 5,
+      overflow: 'hidden',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    priceText: { fontSize: 9, fontWeight: '700', color: 'white', zIndex: 1 },
+    storyName: {
+      ...(fonts.bodySm as object),
+      fontSize: 10,
+      color: colors.slateBrand,
+      marginTop: 6,
+      maxWidth: 68,
+      textAlign: 'center',
+    },
+  }), [colors])
+}

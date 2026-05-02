@@ -1,22 +1,23 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { View, Text, Pressable, Alert, StyleSheet } from 'react-native'
 import { Image } from 'expo-image'
 import { FlashList } from '@shopify/flash-list'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { mockListings } from '../../src/data/listings'
 import { mockSessionUser } from '../../src/data/users'
 import { formatPrice } from '../../src/lib/utils'
+import type { ColorTokens } from '../../src/constants/colors'
 import type { Listing } from '../../src/types'
 
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'
 
 type ExpiryState = { label: string; color: string; bg: string }
 
-function getExpiryState(expiresAt: Date): ExpiryState {
+function getExpiryState(expiresAt: Date, colors: ColorTokens): ExpiryState {
   const now = new Date()
   const msLeft = expiresAt.getTime() - now.getTime()
   const daysLeft = Math.ceil(msLeft / 86400000)
@@ -31,6 +32,7 @@ function getExpiryState(expiresAt: Date): ExpiryState {
 }
 
 function EmptyState() {
+  const styles = useStyles()
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyIcon}>🏠</Text>
@@ -50,6 +52,8 @@ function ListingActionBar({
   listing: Listing
   onDelete: (id: string) => void
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const routerHook = useRouter()
 
   const handleDelete = useCallback(() => {
@@ -66,10 +70,6 @@ function ListingActionBar({
       ],
     )
   }, [listing, onDelete])
-
-  const handleBump = useCallback(() => {
-    Alert.alert('Boost', 'Your listing will be renewed for another 30 days.')
-  }, [])
 
   return (
     <View style={styles.actionBar}>
@@ -102,9 +102,11 @@ function MyListingCard({
   listing: Listing
   onDelete: (id: string) => void
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const routerHook = useRouter()
   const photo = listing.photos[0] ?? PLACEHOLDER
-  const expiry = getExpiryState(listing.expiresAt)
+  const expiry = getExpiryState(listing.expiresAt, colors)
 
   return (
     <View style={styles.card}>
@@ -132,6 +134,7 @@ function MyListingCard({
 }
 
 export default function MyListingsScreen() {
+  const styles = useStyles()
   const myListings = mockListings.filter((l) => l.posterId === mockSessionUser.id)
   const [deletedIds, setDeletedIds] = useState<Set<string>>(new Set())
 
@@ -168,80 +171,83 @@ export default function MyListingsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  back: { ...(fonts.bodyMd as object), color: colors.coral },
-  title: { ...(fonts.titleMd as object), color: colors.jet },
-  postBtn: { ...(fonts.titleSm as object), color: colors.coral },
-  listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 },
-  cardWrap: { marginBottom: 16 },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...(shadows.card as object),
-  },
-  imageArea: {
-    height: 180,
-    backgroundColor: colors.surfaceLow,
-  },
-  expiryBadge: {
-    position: 'absolute',
-    bottom: 10,
-    right: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
-  expiryLabel: { ...(fonts.labelMd as object) },
-  cardBody: {
-    padding: 16,
-    gap: 4,
-  },
-  cardTitle: { ...(fonts.titleSm as object), color: colors.jet },
-  cardPrice: { ...(fonts.price as object), color: colors.coral },
-  cardLocation: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  actionBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingTop: 10,
-    paddingBottom: 14,
-    paddingHorizontal: 16,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: `${colors.ghost}20`,
-  },
-  actionBtn: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  actionDivider: {
-    width: StyleSheet.hairlineWidth,
-    height: 16,
-    backgroundColor: `${colors.ghost}60`,
-  },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 80,
-    gap: 8,
-    paddingHorizontal: 32,
-  },
-  emptyIcon: { fontSize: 44 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-  emptyCta: {
-    marginTop: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: colors.coral,
-    borderRadius: 12,
-  },
-  emptyCtaText: { ...(fonts.titleSm as object), color: '#fff' },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    back: { ...(fonts.bodyMd as object), color: colors.coral },
+    title: { ...(fonts.titleMd as object), color: colors.jet },
+    postBtn: { ...(fonts.titleSm as object), color: colors.coral },
+    listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 40 },
+    cardWrap: { marginBottom: 16 },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      overflow: 'hidden',
+      ...(shadows.card as object),
+    },
+    imageArea: {
+      height: 180,
+      backgroundColor: colors.surfaceLow,
+    },
+    expiryBadge: {
+      position: 'absolute',
+      bottom: 10,
+      right: 10,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 10,
+    },
+    expiryLabel: { ...(fonts.labelMd as object) },
+    cardBody: {
+      padding: 16,
+      gap: 4,
+    },
+    cardTitle: { ...(fonts.titleSm as object), color: colors.jet },
+    cardPrice: { ...(fonts.price as object), color: colors.coral },
+    cardLocation: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    actionBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-around',
+      paddingTop: 10,
+      paddingBottom: 14,
+      paddingHorizontal: 16,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: `${colors.ghost}20`,
+    },
+    actionBtn: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    actionDivider: {
+      width: StyleSheet.hairlineWidth,
+      height: 16,
+      backgroundColor: `${colors.ghost}60`,
+    },
+    empty: {
+      alignItems: 'center',
+      paddingTop: 80,
+      gap: 8,
+      paddingHorizontal: 32,
+    },
+    emptyIcon: { fontSize: 44 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+    emptyCta: {
+      marginTop: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      backgroundColor: colors.coral,
+      borderRadius: 12,
+    },
+    emptyCtaText: { ...(fonts.titleSm as object), color: '#fff' },
+  }), [colors])
+}

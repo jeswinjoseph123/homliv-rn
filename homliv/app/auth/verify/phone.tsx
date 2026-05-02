@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react'
+import { useState, useRef, useEffect, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { colors } from '../../../src/constants/colors'
+import { useTheme } from '../../../src/hooks/useTheme'
 import { fonts } from '../../../src/constants/typography'
 import { useSession } from '../../../src/hooks/useSession'
 import { track } from '../../../src/lib/analytics'
@@ -19,6 +19,7 @@ const CODE_LENGTH = 6
 export default function VerifyPhoneScreen() {
   const router = useRouter()
   const { user, setUser } = useSession()
+  const styles = useStyles()
   const [digits, setDigits] = useState<string[]>(Array(CODE_LENGTH).fill(''))
   const [secondsLeft, setSecondsLeft] = useState(60)
   const inputRefs = useRef<(TextInput | null)[]>(Array(CODE_LENGTH).fill(null))
@@ -115,40 +116,31 @@ export default function VerifyPhoneScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  header: { paddingHorizontal: 20, paddingVertical: 12 },
-  back: { ...(fonts.titleSm as object), color: colors.coral },
-
-  body: {
-    flex: 1,
-    alignItems: 'center',
-    paddingHorizontal: 32,
-    paddingTop: 40,
-    gap: 16,
-  },
-  icon: { fontSize: 64 },
-  heading: { ...(fonts.displayMd as object), color: colors.jet, textAlign: 'center' },
-  sub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-
-  otpRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
-  otpBox: {
-    width: 48,
-    height: 56,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: `${colors.ghost}80`,
-    backgroundColor: colors.surfaceLow,
-    textAlign: 'center',
-    ...(fonts.titleLg as object),
-    color: colors.ink,
-  },
-  otpBoxFilled: {
-    borderColor: colors.coral,
-    backgroundColor: colors.surface,
-  },
-
-  resendBtn: { marginTop: 8 },
-  resendText: { ...(fonts.labelMd as object), color: colors.coral },
-  resendDisabled: { color: colors.slateBrand },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: { paddingHorizontal: 20, paddingVertical: 12 },
+    back: { ...(fonts.titleSm as object), color: colors.coral },
+    body: { flex: 1, alignItems: 'center', paddingHorizontal: 32, paddingTop: 40, gap: 16 },
+    icon: { fontSize: 64 },
+    heading: { ...(fonts.displayMd as object), color: colors.jet, textAlign: 'center' },
+    sub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+    otpRow: { flexDirection: 'row', gap: 12, marginTop: 8 },
+    otpBox: {
+      width: 48,
+      height: 56,
+      borderRadius: 14,
+      borderWidth: 1.5,
+      borderColor: `${colors.ghost}80`,
+      backgroundColor: colors.surfaceLow,
+      textAlign: 'center',
+      ...(fonts.titleLg as object),
+      color: colors.ink,
+    },
+    otpBoxFilled: { borderColor: colors.coral, backgroundColor: colors.surface },
+    resendBtn: { marginTop: 8 },
+    resendText: { ...(fonts.labelMd as object), color: colors.coral },
+    resendDisabled: { color: colors.slateBrand },
+  }), [colors])
+}

@@ -1,6 +1,6 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 import { useChatStore } from '../../hooks/useChatStore'
 import type { Message } from '../../types'
@@ -31,6 +31,7 @@ function formatConfirmedSlot(date: Date): string {
 }
 
 export const ViewingCard = memo(function ViewingCard({ message, isLandlord, convId }: Props) {
+  const styles = useStyles()
   const confirmViewingSlot = useChatStore((s) => s.confirmViewingSlot)
 
   if (message.type === 'viewing_confirmed') {
@@ -101,78 +102,51 @@ export const ViewingCard = memo(function ViewingCard({ message, isLandlord, conv
   )
 })
 
-const styles = StyleSheet.create({
-  requestContainer: {
-    backgroundColor: colors.surfaceLow,
-    borderWidth: 1,
-    borderColor: `${colors.ghost}40`,
-    borderRadius: 16,
-    padding: 14,
-    maxWidth: '90%',
-    alignSelf: 'center',
-    gap: 10,
-    marginVertical: 4,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  calIcon: {
-    fontSize: 16,
-  },
-  requestTitle: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  note: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  slots: {
-    gap: 8,
-  },
-  slot: {
-    borderWidth: 1.5,
-    borderColor: `${colors.ghost}40`,
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 12,
-  },
-  slotText: {
-    ...(fonts.bodySm as object),
-    color: colors.jet,
-  },
-  confirmedSlotItem: {
-    backgroundColor: colors.greenBg,
-    borderColor: `${colors.green}30`,
-  },
-  confirmedSlotText: {
-    ...(fonts.bodySm as object),
-    color: colors.green,
-    fontWeight: '700',
-  },
-  confirmedContainer: {
-    backgroundColor: colors.greenBg,
-    borderColor: `${colors.green}30`,
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
-    maxWidth: '90%',
-    alignSelf: 'center',
-    gap: 8,
-    marginVertical: 4,
-  },
-  confirmedTitle: {
-    ...(fonts.titleSm as object),
-    color: colors.green,
-  },
-  confirmedSlot: {
-    ...(fonts.bodySm as object),
-    color: colors.ink,
-  },
-  address: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    requestContainer: {
+      backgroundColor: colors.surfaceLow,
+      borderWidth: 1,
+      borderColor: `${colors.ghost}40`,
+      borderRadius: 16,
+      padding: 14,
+      maxWidth: '90%',
+      alignSelf: 'center',
+      gap: 10,
+      marginVertical: 4,
+    },
+    header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+    calIcon: { fontSize: 16 },
+    requestTitle: { ...(fonts.titleSm as object), color: colors.jet },
+    note: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    slots: { gap: 8 },
+    slot: {
+      borderWidth: 1.5,
+      borderColor: `${colors.ghost}40`,
+      borderRadius: 10,
+      paddingVertical: 10,
+      paddingHorizontal: 12,
+    },
+    slotText: { ...(fonts.bodySm as object), color: colors.jet },
+    confirmedSlotItem: {
+      backgroundColor: colors.greenBg,
+      borderColor: `${colors.green}30`,
+    },
+    confirmedSlotText: { ...(fonts.bodySm as object), color: colors.green, fontWeight: '700' },
+    confirmedContainer: {
+      backgroundColor: colors.greenBg,
+      borderColor: `${colors.green}30`,
+      borderWidth: 1,
+      borderRadius: 16,
+      padding: 14,
+      maxWidth: '90%',
+      alignSelf: 'center',
+      gap: 8,
+      marginVertical: 4,
+    },
+    confirmedTitle: { ...(fonts.titleSm as object), color: colors.green },
+    confirmedSlot: { ...(fonts.bodySm as object), color: colors.ink },
+    address: { ...(fonts.labelSm as object), color: colors.slateBrand },
+  }), [colors])
+}

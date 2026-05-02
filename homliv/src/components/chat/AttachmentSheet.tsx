@@ -1,7 +1,7 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, Modal } from 'react-native'
 import Animated, { useSharedValue, useAnimatedStyle, withSpring, withTiming } from 'react-native-reanimated'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 type Props = {
@@ -34,6 +34,7 @@ export function AttachmentSheet({
   onLocation,
   onDocument,
 }: Props) {
+  const styles = useStyles()
   const translateY = useSharedValue(400)
   const opacity = useSharedValue(0)
 
@@ -68,11 +69,7 @@ export function AttachmentSheet({
         <Animated.View style={[styles.panel, panelStyle]}>
           <View style={styles.handle} />
           {options.map((opt) => (
-            <Pressable
-              key={opt.label}
-              onPress={opt.onPress}
-              style={styles.optionRow}
-            >
+            <Pressable key={opt.label} onPress={opt.onPress} style={styles.optionRow}>
               <View style={styles.optionIcon}>
                 <Text style={styles.optionEmoji}>{opt.icon}</Text>
               </View>
@@ -86,47 +83,40 @@ export function AttachmentSheet({
   )
 }
 
-const styles = StyleSheet.create({
-  backdrop: {
-    backgroundColor: 'rgba(0,0,0,0.4)',
-  },
-  panel: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    paddingHorizontal: 16,
-    paddingTop: 12,
-  },
-  handle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: `${colors.ghost}80`,
-    alignSelf: 'center',
-    marginBottom: 16,
-  },
-  optionRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 16,
-    height: 56,
-  },
-  optionIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  optionEmoji: { fontSize: 20 },
-  optionLabel: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  bottomPad: { height: 32 },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    backdrop: { backgroundColor: 'rgba(0,0,0,0.4)' },
+    panel: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingHorizontal: 16,
+      paddingTop: 12,
+    },
+    handle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: `${colors.ghost}80`,
+      alignSelf: 'center',
+      marginBottom: 16,
+    },
+    optionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, height: 56 },
+    optionIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceLow,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    optionEmoji: { fontSize: 20 },
+    optionLabel: { ...(fonts.bodyMd as object), color: colors.ink },
+    bottomPad: { height: 32 },
+  }), [colors])
+}

@@ -3,7 +3,7 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import { useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { useSession } from '../../src/hooks/useSession'
@@ -23,19 +23,8 @@ type MaintenanceItem = {
   daysOpen: number
 }
 
-const priorityDotColor = (p: 'low' | 'medium' | 'high') => {
-  if (p === 'high') return colors.red
-  if (p === 'medium') return colors.amber
-  return colors.green
-}
-
-const statusConfig = (s: 'open' | 'in_progress' | 'resolved') => {
-  if (s === 'open') return { label: 'Open', color: colors.red, bg: colors.redBg }
-  if (s === 'in_progress') return { label: 'In progress', color: colors.amber, bg: colors.amberBg }
-  return { label: 'Resolved', color: colors.green, bg: colors.greenBg }
-}
-
 function FilterChip({ label, active, onPress }: { label: string; active: boolean; onPress: () => void }) {
+  const styles = useStyles()
   return (
     <Pressable
       onPress={onPress}
@@ -51,8 +40,23 @@ function FilterChip({ label, active, onPress }: { label: string; active: boolean
 
 function MaintenanceCard({ item }: { item: MaintenanceItem }) {
   const router = useRouter()
+  const { colors } = useTheme()
+  const styles = useStyles()
   const updateMaintenanceStatus = useChatStore((s) => s.updateMaintenanceStatus)
   const data = item.msg.maintenanceData!
+
+  const priorityDotColor = (p: 'low' | 'medium' | 'high') => {
+    if (p === 'high') return colors.red
+    if (p === 'medium') return colors.amber
+    return colors.green
+  }
+
+  const statusConfig = (s: 'open' | 'in_progress' | 'resolved') => {
+    if (s === 'open') return { label: 'Open', color: colors.red, bg: colors.redBg }
+    if (s === 'in_progress') return { label: 'In progress', color: colors.amber, bg: colors.amberBg }
+    return { label: 'Resolved', color: colors.green, bg: colors.greenBg }
+  }
+
   const sc = statusConfig(data.status)
 
   return (
@@ -120,6 +124,7 @@ export default function LandlordMaintenance() {
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
   const [filter, setFilter] = useState<StatusFilter>('all')
+  const styles = useStyles()
 
   const allItems = useMemo<MaintenanceItem[]>(() => {
     const items: MaintenanceItem[] = []
@@ -197,75 +202,78 @@ export default function LandlordMaintenance() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
 
-  filterRow: { paddingHorizontal: 20, paddingBottom: 12, gap: 8 },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    ...(shadows.card as object),
-  },
-  chipActive: { backgroundColor: colors.jet },
-  chipText: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  chipTextActive: { color: '#ffffff' },
+    filterRow: { paddingHorizontal: 20, paddingBottom: 12, gap: 8 },
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+      borderRadius: 10,
+      backgroundColor: colors.surface,
+      ...(shadows.card as object),
+    },
+    chipActive: { backgroundColor: colors.jet },
+    chipText: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    chipTextActive: { color: '#ffffff' },
 
-  list: { paddingHorizontal: 20, paddingBottom: 40 },
+    list: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
-    gap: 10,
-    ...(shadows.dashboard as object),
-  },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  priorityDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
-  cardHeaderText: { flex: 1 },
-  cardCategory: { ...(fonts.titleSm as object), color: colors.jet },
-  cardProperty: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  statusBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  statusText: { ...(fonts.labelSm as object) },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 12,
+      gap: 10,
+      ...(shadows.dashboard as object),
+    },
+    cardHeader: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+    priorityDot: { width: 10, height: 10, borderRadius: 5, flexShrink: 0 },
+    cardHeaderText: { flex: 1 },
+    cardCategory: { ...(fonts.titleSm as object), color: colors.jet },
+    cardProperty: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    statusBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+    statusText: { ...(fonts.labelSm as object) },
 
-  cardDesc: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    cardDesc: { ...(fonts.bodyMd as object), color: colors.slateBrand },
 
-  cardMeta: { flexDirection: 'row', gap: 16 },
-  cardMetaItem: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    cardMeta: { flexDirection: 'row', gap: 16 },
+    cardMetaItem: { ...(fonts.labelSm as object), color: colors.slateBrand },
 
-  cardActions: { flexDirection: 'row', gap: 8 },
-  chatBtn: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: `${colors.slateBrand}15`,
-    alignItems: 'center',
-  },
-  chatBtnText: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  actionBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: `${colors.amber}20`,
-    alignItems: 'center',
-  },
-  actionBtnText: { ...(fonts.labelMd as object), color: colors.amber },
-  resolveBtn: { backgroundColor: `${colors.green}20` },
-  resolveBtnText: { color: colors.green },
+    cardActions: { flexDirection: 'row', gap: 8 },
+    chatBtn: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 12,
+      backgroundColor: `${colors.slateBrand}15`,
+      alignItems: 'center',
+    },
+    chatBtnText: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    actionBtn: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 12,
+      backgroundColor: `${colors.amber}20`,
+      alignItems: 'center',
+    },
+    actionBtnText: { ...(fonts.labelMd as object), color: colors.amber },
+    resolveBtn: { backgroundColor: `${colors.green}20` },
+    resolveBtnText: { color: colors.green },
 
-  empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-})
+    empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+  }), [colors])
+}

@@ -1,6 +1,7 @@
+import { useMemo } from 'react'
 import { ScrollView, Pressable, Text, StyleSheet } from 'react-native'
 import * as Haptics from 'expo-haptics'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 export type FilterKey =
@@ -34,6 +35,7 @@ type Props = {
 }
 
 export function FilterChips({ active, onChange }: Props) {
+  const styles = useStyles()
   const handlePress = (key: FilterKey) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light)
     onChange(key)
@@ -64,30 +66,16 @@ export function FilterChips({ active, onChange }: Props) {
   )
 }
 
-const styles = StyleSheet.create({
-  scroll: { marginVertical: 12 },
-  container: {
-    paddingHorizontal: 16,
-    gap: 8,
-    alignItems: 'center',
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-    borderRadius: 20,
-  },
-  chipActive: {
-    backgroundColor: colors.ink,
-  },
-  chipInactive: {
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: colors.ghost,
-  },
-  label: {
-    ...(fonts.bodySm as object),
-    fontWeight: '500',
-  },
-  labelActive: { color: colors.surface },
-  labelInactive: { color: colors.ink },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    scroll: { marginVertical: 12 },
+    container: { paddingHorizontal: 16, gap: 8, alignItems: 'center' },
+    chip: { paddingHorizontal: 14, paddingVertical: 7, borderRadius: 20 },
+    chipActive: { backgroundColor: colors.ink },
+    chipInactive: { backgroundColor: colors.surface, borderWidth: 1.5, borderColor: colors.ghost },
+    label: { ...(fonts.bodySm as object), fontWeight: '500' },
+    labelActive: { color: colors.surface },
+    labelInactive: { color: colors.ink },
+  }), [colors])
+}

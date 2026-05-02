@@ -1,4 +1,4 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -11,9 +11,10 @@ import { Image } from 'expo-image'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
+import { useTheme } from '../../src/hooks/useTheme'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { useSession } from '../../src/hooks/useSession'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
@@ -26,6 +27,7 @@ const LISTING_TYPE_LABEL: Record<string, string> = {
 }
 
 function Row({ label, value }: { label: string; value: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.row}>
       <Text style={styles.rowLabel}>{label}</Text>
@@ -43,6 +45,7 @@ function VerificationGate({
   verificationLevel: string
   onPublish: () => void
 }) {
+  const styles = useStyles()
   const router = useRouter()
   const isLandlord = listingType === 'landlord'
   const isBasicVerified = verificationLevel !== 'none'
@@ -102,6 +105,7 @@ function VerificationGate({
 }
 
 export default function PostStep4Screen() {
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { listingType, photos, details, preferences, reset } = usePostDraft()
@@ -217,89 +221,92 @@ export default function PostStep4Screen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  content: { padding: 20, gap: 16 },
-  photoStrip: { gap: 8, paddingRight: 20 },
-  photoThumb: {
-    width: 100,
-    height: 70,
-    borderRadius: 10,
-  },
-  section: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 16,
-    padding: 16,
-    gap: 8,
-    ...shadows.card,
-  },
-  sectionTitle: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-    marginBottom: 4,
-  },
-  row: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    gap: 16,
-  },
-  rowLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    flex: 0.4,
-  },
-  rowValue: {
-    ...(fonts.bodySm as object),
-    color: colors.ink,
-    flex: 0.6,
-    textAlign: 'right',
-  },
-  descText: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  gateCard: {
-    backgroundColor: colors.amberBg,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: `${colors.amber}30`,
-    gap: 8,
-  },
-  gateTitle: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  gateSub: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  gateBtn: {
-    backgroundColor: colors.amberBg,
-    borderRadius: 12,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderWidth: 1.5,
-    borderColor: colors.amber,
-    alignItems: 'center',
-  },
-  gateBtnLabel: {
-    ...(fonts.titleSm as object),
-    color: colors.amber,
-  },
-  publishBtn: {
-    borderRadius: 18,
-    overflow: 'hidden',
-    ...shadows.coral,
-  },
-  publishGradient: {
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  publishLabel: {
-    ...(fonts.titleMd as object),
-    color: '#ffffff',
-    fontSize: 15,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    content: { padding: 20, gap: 16 },
+    photoStrip: { gap: 8, paddingRight: 20 },
+    photoThumb: {
+      width: 100,
+      height: 70,
+      borderRadius: 10,
+    },
+    section: {
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 16,
+      padding: 16,
+      gap: 8,
+      ...shadows.card,
+    },
+    sectionTitle: {
+      ...(fonts.titleSm as object),
+      color: colors.jet,
+      marginBottom: 4,
+    },
+    row: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      gap: 16,
+    },
+    rowLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+      flex: 0.4,
+    },
+    rowValue: {
+      ...(fonts.bodySm as object),
+      color: colors.ink,
+      flex: 0.6,
+      textAlign: 'right',
+    },
+    descText: {
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+    },
+    gateCard: {
+      backgroundColor: colors.amberBg,
+      borderRadius: 16,
+      padding: 16,
+      borderWidth: 1,
+      borderColor: `${colors.amber}30`,
+      gap: 8,
+    },
+    gateTitle: {
+      ...(fonts.titleSm as object),
+      color: colors.jet,
+    },
+    gateSub: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    gateBtn: {
+      backgroundColor: colors.amberBg,
+      borderRadius: 12,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderWidth: 1.5,
+      borderColor: colors.amber,
+      alignItems: 'center',
+    },
+    gateBtnLabel: {
+      ...(fonts.titleSm as object),
+      color: colors.amber,
+    },
+    publishBtn: {
+      borderRadius: 18,
+      overflow: 'hidden',
+      ...shadows.coral,
+    },
+    publishGradient: {
+      height: 56,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    publishLabel: {
+      ...(fonts.titleMd as object),
+      color: '#ffffff',
+      fontSize: 15,
+    },
+  }), [colors])
+}

@@ -1,6 +1,6 @@
-import { memo } from 'react'
+import { memo, useMemo } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 import type { Message } from '../../types'
 
@@ -14,6 +14,7 @@ function formatTime(date: Date): string {
 }
 
 export const MessageBubble = memo(function MessageBubble({ message, isOwn }: Props) {
+  const styles = useStyles()
   if (!message.text) return null
 
   return (
@@ -28,51 +29,34 @@ export const MessageBubble = memo(function MessageBubble({ message, isOwn }: Pro
   )
 })
 
-const styles = StyleSheet.create({
-  ownWrapper: {
-    alignItems: 'flex-end',
-    marginVertical: 2,
-  },
-  otherWrapper: {
-    alignItems: 'flex-start',
-    marginVertical: 2,
-  },
-  bubble: {
-    maxWidth: '72%',
-    paddingVertical: 10,
-    paddingHorizontal: 14,
-  },
-  ownBubble: {
-    backgroundColor: colors.jet,
-    borderRadius: 18,
-    borderBottomRightRadius: 4,
-    alignSelf: 'flex-end',
-  },
-  otherBubble: {
-    backgroundColor: colors.surface,
-    borderWidth: 1,
-    borderColor: `${colors.ghost}15`,
-    borderRadius: 18,
-    borderBottomLeftRadius: 4,
-    alignSelf: 'flex-start',
-  },
-  ownText: {
-    ...(fonts.bodyMd as object),
-    color: 'white',
-  },
-  otherText: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  ownTimestamp: {
-    ...(fonts.labelSm as object),
-    color: 'rgba(255,255,255,0.6)',
-    textAlign: 'right',
-    marginTop: 4,
-  },
-  otherTimestamp: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-    marginTop: 4,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    ownWrapper: { alignItems: 'flex-end', marginVertical: 2 },
+    otherWrapper: { alignItems: 'flex-start', marginVertical: 2 },
+    bubble: { maxWidth: '72%', paddingVertical: 10, paddingHorizontal: 14 },
+    ownBubble: {
+      backgroundColor: colors.jet,
+      borderRadius: 18,
+      borderBottomRightRadius: 4,
+      alignSelf: 'flex-end',
+    },
+    otherBubble: {
+      backgroundColor: colors.surface,
+      borderWidth: 1,
+      borderColor: `${colors.ghost}15`,
+      borderRadius: 18,
+      borderBottomLeftRadius: 4,
+      alignSelf: 'flex-start',
+    },
+    ownText: { ...(fonts.bodyMd as object), color: 'white' },
+    otherText: { ...(fonts.bodyMd as object), color: colors.ink },
+    ownTimestamp: {
+      ...(fonts.labelSm as object),
+      color: 'rgba(255,255,255,0.6)',
+      textAlign: 'right',
+      marginTop: 4,
+    },
+    otherTimestamp: { ...(fonts.labelSm as object), color: colors.slateBrand, marginTop: 4 },
+  }), [colors])
+}

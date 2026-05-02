@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useMemo, useRef } from 'react'
 import {
   View,
   Text,
@@ -18,7 +18,7 @@ import Animated, {
   withTiming,
   interpolateColor,
 } from 'react-native-reanimated'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
 import { WizardHeader } from '../../src/components/post/WizardHeader'
@@ -56,6 +56,8 @@ function AnimatedInput({
   prefix?: string
   style?: object
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const focused = useSharedValue(0)
 
   const borderStyle = useAnimatedStyle(() => ({
@@ -90,6 +92,7 @@ function SegmentedControl({
   value: BillsOption
   onChange: (v: BillsOption) => void
 }) {
+  const styles = useStyles()
   return (
     <View style={styles.segmented}>
       {options.map((opt) => (
@@ -118,6 +121,7 @@ function TagGrid({
   selected: string[]
   onToggle: (v: string) => void
 }) {
+  const styles = useStyles()
   return (
     <View style={styles.tagGrid}>
       {options.map((opt) => {
@@ -147,6 +151,7 @@ function SingleSelect({
   value: string | null
   onChange: (v: string) => void
 }) {
+  const styles = useStyles()
   return (
     <View style={styles.tagGrid}>
       {options.map((opt) => {
@@ -168,10 +173,12 @@ function SingleSelect({
 }
 
 function SectionLabel({ label }: { label: string }) {
+  const styles = useStyles()
   return <Text style={styles.sectionLabel}>{label}</Text>
 }
 
 export default function PostStep3Screen() {
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { listingType, details, preferences, setDetails, setPreferences, reset } = usePostDraft()
@@ -369,170 +376,173 @@ export default function PostStep3Screen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  content: { padding: 20, gap: 8, paddingBottom: 40 },
-  sectionLabel: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  inputWrapper: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 14,
-    paddingHorizontal: 16,
-    paddingVertical: 13,
-  },
-  input: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-    flex: 1,
-    padding: 0,
-  },
-  inputWithPrefix: { marginLeft: 4 },
-  inputMulti: { minHeight: 100, textAlignVertical: 'top' },
-  inputPrefix: {
-    ...(fonts.bodyMd as object),
-    color: colors.slateBrand,
-  },
-  segmented: {
-    flexDirection: 'row',
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 14,
-    padding: 4,
-    gap: 4,
-  },
-  segment: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  segmentActive: {
-    backgroundColor: colors.surface,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 4,
-    elevation: 2,
-  },
-  segmentLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  segmentLabelActive: {
-    ...(fonts.labelMd as object),
-    color: colors.ink,
-  },
-  toggleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 4,
-  },
-  checkbox: {
-    width: 22,
-    height: 22,
-    borderRadius: 6,
-    borderWidth: 2,
-    borderColor: colors.ghost,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  checkboxActive: {
-    backgroundColor: colors.coral,
-    borderColor: colors.coral,
-  },
-  checkmark: {
-    ...(fonts.labelSm as object),
-    color: colors.surface,
-  },
-  toggleLabel: {
-    ...(fonts.bodyMd as object),
-    color: colors.ink,
-  },
-  descHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-end',
-    marginTop: 8,
-    marginBottom: 4,
-  },
-  charCount: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-  prefsContainer: {
-    backgroundColor: colors.greenBg,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: `${colors.green}30`,
-    padding: 16,
-    marginTop: 8,
-    gap: 8,
-  },
-  prefsHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  prefsTitle: {
-    ...(fonts.titleMd as object),
-    color: colors.jet,
-  },
-  prefsBadge: {
-    backgroundColor: `${colors.green}20`,
-    borderRadius: 20,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  prefsBadgeLabel: {
-    ...(fonts.labelSm as object),
-    color: colors.green,
-  },
-  prefsSub: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  tagGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  tag: {
-    borderRadius: 12,
-    borderWidth: 1.5,
-    borderColor: colors.ghost,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    backgroundColor: colors.surface,
-  },
-  tagActive: {
-    backgroundColor: colors.jet,
-    borderColor: colors.jet,
-  },
-  tagLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  tagLabelActive: {
-    color: colors.surface,
-  },
-  genderHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    marginTop: 8,
-  },
-  genderInfo: { fontSize: 16 },
-  genderHint: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    fontStyle: 'italic',
-    marginBottom: 4,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    content: { padding: 20, gap: 8, paddingBottom: 40 },
+    sectionLabel: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+      marginTop: 8,
+      marginBottom: 4,
+    },
+    inputWrapper: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 14,
+      paddingHorizontal: 16,
+      paddingVertical: 13,
+    },
+    input: {
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+      flex: 1,
+      padding: 0,
+    },
+    inputWithPrefix: { marginLeft: 4 },
+    inputMulti: { minHeight: 100, textAlignVertical: 'top' },
+    inputPrefix: {
+      ...(fonts.bodyMd as object),
+      color: colors.slateBrand,
+    },
+    segmented: {
+      flexDirection: 'row',
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 14,
+      padding: 4,
+      gap: 4,
+    },
+    segment: {
+      flex: 1,
+      paddingVertical: 10,
+      borderRadius: 10,
+      alignItems: 'center',
+    },
+    segmentActive: {
+      backgroundColor: colors.surface,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.08,
+      shadowRadius: 4,
+      elevation: 2,
+    },
+    segmentLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    segmentLabelActive: {
+      ...(fonts.labelMd as object),
+      color: colors.ink,
+    },
+    toggleRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingVertical: 4,
+    },
+    checkbox: {
+      width: 22,
+      height: 22,
+      borderRadius: 6,
+      borderWidth: 2,
+      borderColor: colors.ghost,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    checkboxActive: {
+      backgroundColor: colors.coral,
+      borderColor: colors.coral,
+    },
+    checkmark: {
+      ...(fonts.labelSm as object),
+      color: colors.surface,
+    },
+    toggleLabel: {
+      ...(fonts.bodyMd as object),
+      color: colors.ink,
+    },
+    descHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-end',
+      marginTop: 8,
+      marginBottom: 4,
+    },
+    charCount: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+    },
+    prefsContainer: {
+      backgroundColor: colors.greenBg,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: `${colors.green}30`,
+      padding: 16,
+      marginTop: 8,
+      gap: 8,
+    },
+    prefsHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      flexWrap: 'wrap',
+    },
+    prefsTitle: {
+      ...(fonts.titleMd as object),
+      color: colors.jet,
+    },
+    prefsBadge: {
+      backgroundColor: `${colors.green}20`,
+      borderRadius: 20,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    prefsBadgeLabel: {
+      ...(fonts.labelSm as object),
+      color: colors.green,
+    },
+    prefsSub: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    tagGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    tag: {
+      borderRadius: 12,
+      borderWidth: 1.5,
+      borderColor: colors.ghost,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      backgroundColor: colors.surface,
+    },
+    tagActive: {
+      backgroundColor: colors.jet,
+      borderColor: colors.jet,
+    },
+    tagLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    tagLabelActive: {
+      color: colors.surface,
+    },
+    genderHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginTop: 8,
+    },
+    genderInfo: { fontSize: 16 },
+    genderHint: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+      fontStyle: 'italic',
+      marginBottom: 4,
+    },
+  }), [colors])
+}

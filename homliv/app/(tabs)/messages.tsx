@@ -1,10 +1,11 @@
-import { useCallback, memo } from 'react'
+import { useCallback, memo, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { useChatStore } from '../../src/hooks/useChatStore'
 import { mockUsers, mockSessionUser } from '../../src/data/users'
@@ -25,6 +26,8 @@ function previewText(msg: Message | undefined): string {
 }
 
 const ConvRow = memo(function ConvRow({ conv, onPress }: { conv: Conversation; onPress: () => void }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const otherId = conv.participantIds.find((id) => id !== mockSessionUser.id) ?? conv.participantIds[0]
   const other = mockUsers.find((u) => u.id === otherId)
   if (!other) return null
@@ -72,6 +75,7 @@ const ConvRow = memo(function ConvRow({ conv, onPress }: { conv: Conversation; o
 
 function EmptyState() {
   const router = useRouter()
+  const styles = useStyles()
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyIcon}>💬</Text>
@@ -87,11 +91,11 @@ function EmptyState() {
 export default function MessagesScreen() {
   const router = useRouter()
   const conversations = useChatStore((s) => s.conversations)
+  const styles = useStyles()
 
   const sorted = [...conversations].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime())
 
   const handlePress = useCallback((conv: Conversation) => {
-    const listing = mockListings.find((l) => l.id === conv.listingId)
     const otherId = conv.participantIds.find((id) => id !== mockSessionUser.id) ?? ''
     router.push({
       pathname: '/messages/[threadId]',
@@ -121,73 +125,76 @@ export default function MessagesScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  listContent: { paddingBottom: 20 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 76,
-    paddingHorizontal: 16,
-    gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}20`,
-  },
-  avatarWrap: { position: 'relative' },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
-  onlineDot: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.green,
-    borderWidth: 1.5,
-    borderColor: colors.surface,
-  },
-  rowContent: { flex: 1, gap: 3 },
-  rowTop: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1, marginRight: 8 },
-  timestamp: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  preview: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  badgeText: { ...(fonts.labelSm as object), color: '#ffffff' },
-  empty: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 80,
-    gap: 8,
-  },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-  emptyLink: { ...(fonts.titleSm as object), color: colors.coral, marginTop: 4 },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    listContent: { paddingBottom: 20 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 76,
+      paddingHorizontal: 16,
+      gap: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}20`,
+    },
+    avatarWrap: { position: 'relative' },
+    avatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 14,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
+    onlineDot: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.green,
+      borderWidth: 1.5,
+      borderColor: colors.surface,
+    },
+    rowContent: { flex: 1, gap: 3 },
+    rowTop: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+    },
+    name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1, marginRight: 8 },
+    timestamp: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    preview: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    badge: {
+      minWidth: 20,
+      height: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    badgeText: { ...(fonts.labelSm as object), color: '#ffffff' },
+    empty: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 80,
+      gap: 8,
+    },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    emptyLink: { ...(fonts.titleSm as object), color: colors.coral, marginTop: 4 },
+  }), [colors])
+}

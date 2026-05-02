@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -10,7 +10,8 @@ import {
 import { LinearGradient } from 'expo-linear-gradient'
 import { BlurView } from 'expo-blur'
 import { Ionicons } from '@expo/vector-icons'
-import { colors, gradients } from '../../constants/colors'
+import { gradients } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 const IRISH_PHONE = /(\+353|0)\s?[1-9]\d{1,2}\s?\d{3}\s?\d{3,4}/
@@ -33,6 +34,8 @@ export function ComposerBar({
   onScamWarning,
   paddingBottom = 0,
 }: Props) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const [text, setText] = useState('')
   const inputRef = useRef<TextInput>(null)
 
@@ -118,78 +121,64 @@ export function ComposerBar({
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: `${colors.ghost}30`,
-    overflow: 'hidden',
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    gap: 10,
-  },
-  attachBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  attachIcon: {
-    ...(fonts.titleLg as object),
-    color: colors.slateBrand,
-    lineHeight: 28,
-  },
-  input: {
-    flex: 1,
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 20,
-    paddingHorizontal: 16,
-    paddingVertical: Platform.OS === 'ios' ? 11 : 8,
-    fontSize: 15,
-    color: colors.ink,
-    maxHeight: 120,
-  },
-  sendBtn: {
-    width: 42,
-    height: 42,
-    borderRadius: 14,
-    overflow: 'hidden',
-  },
-  sendGradient: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  sendDisabled: {
-    flex: 1,
-    backgroundColor: `${colors.ghost}40`,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  disabledContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: `${colors.ghost}30`,
-    overflow: 'hidden',
-    paddingVertical: 16,
-    paddingHorizontal: 16,
-    alignItems: 'center',
-  },
-  disabledText: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    textAlign: 'center',
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: `${colors.ghost}30`,
+      overflow: 'hidden',
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'flex-end',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      gap: 10,
+    },
+    attachBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceLow,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    attachIcon: { ...(fonts.titleLg as object), color: colors.slateBrand, lineHeight: 28 },
+    input: {
+      flex: 1,
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 20,
+      paddingHorizontal: 16,
+      paddingVertical: Platform.OS === 'ios' ? 11 : 8,
+      fontSize: 15,
+      color: colors.ink,
+      maxHeight: 120,
+    },
+    sendBtn: { width: 42, height: 42, borderRadius: 14, overflow: 'hidden' },
+    sendGradient: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+    sendDisabled: {
+      flex: 1,
+      backgroundColor: `${colors.ghost}40`,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    disabledContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: `${colors.ghost}30`,
+      overflow: 'hidden',
+      paddingVertical: 16,
+      paddingHorizontal: 16,
+      alignItems: 'center',
+    },
+    disabledText: { ...(fonts.bodySm as object), color: colors.slateBrand, textAlign: 'center' },
+  }), [colors])
+}

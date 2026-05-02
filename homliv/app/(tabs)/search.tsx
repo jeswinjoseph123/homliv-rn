@@ -19,7 +19,7 @@ import Animated, {
   withTiming,
 } from 'react-native-reanimated'
 import { useLocalSearchParams, useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { mockListings } from '../../src/data/listings'
@@ -53,6 +53,7 @@ function FilterChip({
   active: boolean
   onPress: () => void
 }) {
+  const styles = useStyles()
   return (
     <Pressable
       onPress={onPress}
@@ -75,6 +76,8 @@ function SaveSearchSheet({
   onClose: () => void
   onSave: (name: string, notify: boolean) => void
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const [name, setName] = useState('')
   const [notify, setNotify] = useState(true)
   const insets = useSafeAreaInsets()
@@ -156,6 +159,7 @@ function SaveSearchSheet({
 }
 
 function EmptyResults() {
+  const styles = useStyles()
   return (
     <View style={styles.emptyResults}>
       <Text style={styles.emptyIcon}>🏡</Text>
@@ -166,6 +170,8 @@ function EmptyResults() {
 }
 
 export default function SearchScreen() {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const router = useRouter()
   const params = useLocalSearchParams<{
     type?: string
@@ -225,7 +231,6 @@ export default function SearchScreen() {
         <Text style={styles.headerTitle}>Search</Text>
       </View>
 
-      {/* Search bar */}
       <View style={styles.searchBar}>
         <Text style={styles.searchIcon}>🔍</Text>
         <TextInput
@@ -243,7 +248,6 @@ export default function SearchScreen() {
         )}
       </View>
 
-      {/* Type filter chips */}
       <View style={styles.filterRow}>
         {TYPE_CHIPS.map((chip) => (
           <FilterChip
@@ -255,7 +259,6 @@ export default function SearchScreen() {
         ))}
       </View>
 
-      {/* Price filter chips */}
       <View style={styles.filterRow}>
         {PRICE_CHIPS.map((chip) => (
           <FilterChip
@@ -267,14 +270,12 @@ export default function SearchScreen() {
         ))}
       </View>
 
-      {/* Results count */}
       {hasFilters && (
         <View style={styles.resultsRow}>
           <Text style={styles.resultsCount}>{results.length} listings found</Text>
         </View>
       )}
 
-      {/* Results list */}
       <FlashList
         data={hasFilters ? results : mockListings}
         keyExtractor={(l) => l.id}
@@ -295,7 +296,6 @@ export default function SearchScreen() {
         )}
       />
 
-      {/* Save this search FAB */}
       {hasFilters && (
         <View style={styles.saveFab}>
           <Pressable onPress={() => setShowSaveSheet(true)} style={styles.saveFabBtn}>
@@ -313,149 +313,146 @@ export default function SearchScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
 
-  // Search bar
-  searchBar: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: colors.surface,
-    marginHorizontal: 16,
-    marginTop: 12,
-    marginBottom: 4,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-    ...(shadows.card as object),
-  },
-  searchIcon: { fontSize: 16 },
-  searchInput: {
-    flex: 1,
-    ...(fonts.bodyMd as object),
-    color: colors.jet,
-  },
-  clearIcon: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    searchBar: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.surface,
+      marginHorizontal: 16,
+      marginTop: 12,
+      marginBottom: 4,
+      borderRadius: 14,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      gap: 8,
+      ...(shadows.card as object),
+    },
+    searchIcon: { fontSize: 16 },
+    searchInput: {
+      flex: 1,
+      ...(fonts.bodyMd as object),
+      color: colors.jet,
+    },
+    clearIcon: { ...(fonts.labelMd as object), color: colors.slateBrand },
 
-  // Filter chips
-  filterRow: {
-    flexDirection: 'row',
-    paddingHorizontal: 16,
-    paddingVertical: 6,
-    gap: 8,
-  },
-  chip: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    backgroundColor: colors.surface,
-    borderWidth: 1.5,
-    borderColor: `${colors.ghost}60`,
-  },
-  chipActive: {
-    backgroundColor: colors.jet,
-    borderColor: colors.jet,
-  },
-  chipLabel: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  chipLabelActive: { color: '#fff' },
+    filterRow: {
+      flexDirection: 'row',
+      paddingHorizontal: 16,
+      paddingVertical: 6,
+      gap: 8,
+    },
+    chip: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 20,
+      backgroundColor: colors.surface,
+      borderWidth: 1.5,
+      borderColor: `${colors.ghost}60`,
+    },
+    chipActive: {
+      backgroundColor: colors.jet,
+      borderColor: colors.jet,
+    },
+    chipLabel: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    chipLabelActive: { color: '#fff' },
 
-  // Results
-  resultsRow: {
-    paddingHorizontal: 20,
-    paddingTop: 4,
-    paddingBottom: 8,
-  },
-  resultsCount: { ...(fonts.labelMd as object), color: colors.slateBrand },
-  listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100 },
-  cardWrap: { marginBottom: 16 },
+    resultsRow: {
+      paddingHorizontal: 20,
+      paddingTop: 4,
+      paddingBottom: 8,
+    },
+    resultsCount: { ...(fonts.labelMd as object), color: colors.slateBrand },
+    listContent: { paddingHorizontal: 16, paddingTop: 8, paddingBottom: 100 },
+    cardWrap: { marginBottom: 16 },
 
-  // Save FAB
-  saveFab: {
-    position: 'absolute',
-    bottom: 24,
-    left: 0,
-    right: 0,
-    alignItems: 'center',
-    pointerEvents: 'box-none',
-  },
-  saveFabBtn: {
-    backgroundColor: colors.jet,
-    borderRadius: 24,
-    paddingHorizontal: 24,
-    paddingVertical: 14,
-    ...(shadows.dashboard as object),
-  },
-  saveFabLabel: { ...(fonts.titleSm as object), color: '#fff' },
+    saveFab: {
+      position: 'absolute',
+      bottom: 24,
+      left: 0,
+      right: 0,
+      alignItems: 'center',
+      pointerEvents: 'box-none',
+    },
+    saveFabBtn: {
+      backgroundColor: colors.jet,
+      borderRadius: 24,
+      paddingHorizontal: 24,
+      paddingVertical: 14,
+      ...(shadows.dashboard as object),
+    },
+    saveFabLabel: { ...(fonts.titleSm as object), color: '#fff' },
 
-  // Save sheet
-  backdrop: { backgroundColor: 'rgba(0,0,0,0.4)' },
-  sheet: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: colors.surface,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    gap: 16,
-  },
-  sheetHandle: {
-    width: 36,
-    height: 4,
-    borderRadius: 2,
-    backgroundColor: `${colors.ghost}80`,
-    alignSelf: 'center',
-    marginBottom: 4,
-  },
-  sheetTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  sheetLabel: { ...(fonts.labelMd as object), color: colors.slateBrand, marginBottom: -8 },
-  sheetInput: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    ...(fonts.bodyMd as object),
-    color: colors.jet,
-    borderWidth: 1,
-    borderColor: `${colors.ghost}60`,
-  },
-  notifyRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 4,
-  },
-  notifyLabel: { ...(fonts.titleSm as object), color: colors.jet },
-  notifySub: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  saveBtn: {
-    backgroundColor: colors.coral,
-    borderRadius: 14,
-    height: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  saveBtnDisabled: { opacity: 0.4 },
-  saveBtnLabel: { ...(fonts.titleSm as object), color: '#fff' },
+    backdrop: { backgroundColor: 'rgba(0,0,0,0.4)' },
+    sheet: {
+      position: 'absolute',
+      left: 0,
+      right: 0,
+      bottom: 0,
+      backgroundColor: colors.surface,
+      borderTopLeftRadius: 24,
+      borderTopRightRadius: 24,
+      paddingHorizontal: 20,
+      paddingTop: 12,
+      gap: 16,
+    },
+    sheetHandle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: `${colors.ghost}80`,
+      alignSelf: 'center',
+      marginBottom: 4,
+    },
+    sheetTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    sheetLabel: { ...(fonts.labelMd as object), color: colors.slateBrand, marginBottom: -8 },
+    sheetInput: {
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 12,
+      paddingHorizontal: 14,
+      paddingVertical: 12,
+      ...(fonts.bodyMd as object),
+      color: colors.jet,
+      borderWidth: 1,
+      borderColor: `${colors.ghost}60`,
+    },
+    notifyRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingVertical: 4,
+    },
+    notifyLabel: { ...(fonts.titleSm as object), color: colors.jet },
+    notifySub: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    saveBtn: {
+      backgroundColor: colors.coral,
+      borderRadius: 14,
+      height: 50,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    saveBtnDisabled: { opacity: 0.4 },
+    saveBtnLabel: { ...(fonts.titleSm as object), color: '#fff' },
 
-  // Empty
-  emptyResults: {
-    alignItems: 'center',
-    paddingTop: 60,
-    gap: 8,
-    paddingHorizontal: 32,
-  },
-  emptyIcon: { fontSize: 44 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-})
+    emptyResults: {
+      alignItems: 'center',
+      paddingTop: 60,
+      gap: 8,
+      paddingHorizontal: 32,
+    },
+    emptyIcon: { fontSize: 44 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+  }), [colors])
+}

@@ -3,7 +3,7 @@ import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import { useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { useSession } from '../../src/hooks/useSession'
@@ -12,7 +12,7 @@ import { mockListings } from '../../src/data/listings'
 import { mockUsers } from '../../src/data/users'
 import { mockTenancy } from '../../src/data/tenancy'
 import { getInitials, formatDate, formatPrice } from '../../src/lib/utils'
-import type { User, Listing, Conversation } from '../../src/types'
+import type { User, Listing } from '../../src/types'
 
 type TenantRow = {
   convId: string
@@ -22,6 +22,8 @@ type TenantRow = {
 }
 
 function RentBadge({ status }: { status: 'paid' | 'pending' | 'overdue' }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const map = {
     paid: { label: 'Paid', color: colors.green, bg: colors.greenBg },
     pending: { label: 'Pending', color: colors.amber, bg: colors.amberBg },
@@ -37,6 +39,7 @@ function RentBadge({ status }: { status: 'paid' | 'pending' | 'overdue' }) {
 
 function TenantCard({ row }: { row: TenantRow }) {
   const router = useRouter()
+  const styles = useStyles()
   const isMockTenant = mockTenancy.tenantId === row.tenant.id && mockTenancy.listingId === row.listing.id
 
   return (
@@ -79,6 +82,7 @@ function TenantCard({ row }: { row: TenantRow }) {
 export default function LandlordTenants() {
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
+  const styles = useStyles()
 
   const tenantRows = useMemo<TenantRow[]>(() => {
     const rows: TenantRow[] = []
@@ -124,59 +128,62 @@ export default function LandlordTenants() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
 
-  list: { paddingHorizontal: 20, paddingBottom: 40 },
+    list: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
-    gap: 12,
-    ...(shadows.dashboard as object),
-  },
-  cardTop: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-    flexShrink: 0,
-  },
-  avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
-  tenantInfo: { flex: 1, gap: 3 },
-  nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
-  tenantName: { ...(fonts.titleSm as object), color: colors.jet, flex: 1 },
-  propertyLine: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  rentLine: { ...(fonts.labelMd as object), color: colors.coral },
-  leaseLine: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 12,
+      gap: 12,
+      ...(shadows.dashboard as object),
+    },
+    cardTop: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+    avatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 14,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+      flexShrink: 0,
+    },
+    avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
+    tenantInfo: { flex: 1, gap: 3 },
+    nameRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+    tenantName: { ...(fonts.titleSm as object), color: colors.jet, flex: 1 },
+    propertyLine: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    rentLine: { ...(fonts.labelMd as object), color: colors.coral },
+    leaseLine: { ...(fonts.labelSm as object), color: colors.slateBrand },
 
-  badge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  badgeText: { ...(fonts.labelSm as object) },
+    badge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+    badgeText: { ...(fonts.labelSm as object) },
 
-  messageBtn: {
-    backgroundColor: `${colors.coral}15`,
-    borderRadius: 12,
-    paddingVertical: 10,
-    alignItems: 'center',
-  },
-  messageBtnText: { ...(fonts.labelMd as object), color: colors.coral },
+    messageBtn: {
+      backgroundColor: `${colors.coral}15`,
+      borderRadius: 12,
+      paddingVertical: 10,
+      alignItems: 'center',
+    },
+    messageBtnText: { ...(fonts.labelMd as object), color: colors.coral },
 
-  empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-})
+    empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+  }), [colors])
+}

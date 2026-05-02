@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import { View, Text, Switch, ScrollView, Pressable, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import { colors } from '../../../src/constants/colors'
+import { useTheme } from '../../../src/hooks/useTheme'
 import { fonts } from '../../../src/constants/typography'
 import { useNotifSettings } from '../../../src/hooks/useNotifSettings'
 
@@ -24,8 +25,10 @@ const MEDIUMS: { id: Medium; label: string }[] = [
 ]
 
 function MediumSection({ medium, label }: { medium: Medium; label: string }) {
+  const { colors } = useTheme()
   const settings = useNotifSettings((s) => s[medium])
   const setToggle = useNotifSettings((s) => s.setToggle)
+  const styles = useStyles()
 
   return (
     <View style={styles.section}>
@@ -52,6 +55,7 @@ function MediumSection({ medium, label }: { medium: Medium; label: string }) {
 }
 
 export default function NotificationsSettingsScreen() {
+  const styles = useStyles()
   return (
     <SafeAreaView style={styles.container} edges={['top']}>
       <View style={styles.header}>
@@ -72,43 +76,46 @@ export default function NotificationsSettingsScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  back: { ...(fonts.bodyMd as object), color: colors.coral },
-  title: { ...(fonts.titleMd as object), color: colors.jet },
-  content: { padding: 20, gap: 24 },
-  section: {
-    backgroundColor: colors.surface,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: `${colors.ghost}40`,
-    overflow: 'hidden',
-  },
-  sectionLabel: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-    paddingHorizontal: 16,
-    paddingTop: 14,
-    paddingBottom: 8,
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: `${colors.ghost}30`,
-  },
-  rowLast: {},
-  rowLabel: { ...(fonts.bodyMd as object), color: colors.jet, flex: 1, marginRight: 12 },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    back: { ...(fonts.bodyMd as object), color: colors.coral },
+    title: { ...(fonts.titleMd as object), color: colors.jet },
+    content: { padding: 20, gap: 24 },
+    section: {
+      backgroundColor: colors.surface,
+      borderRadius: 16,
+      borderWidth: 1,
+      borderColor: `${colors.ghost}40`,
+      overflow: 'hidden',
+    },
+    sectionLabel: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+      paddingHorizontal: 16,
+      paddingTop: 14,
+      paddingBottom: 8,
+    },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      borderTopWidth: StyleSheet.hairlineWidth,
+      borderTopColor: `${colors.ghost}30`,
+    },
+    rowLast: {},
+    rowLabel: { ...(fonts.bodyMd as object), color: colors.jet, flex: 1, marginRight: 12 },
+  }), [colors])
+}

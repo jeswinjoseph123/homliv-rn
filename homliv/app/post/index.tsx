@@ -1,9 +1,9 @@
-import { useEffect, useRef, useCallback } from 'react'
+import { useEffect, useMemo, useRef, useCallback } from 'react'
 import { View, Text, ScrollView, Pressable, StyleSheet, Alert } from 'react-native'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useRouter } from 'expo-router'
 import Animated, { useSharedValue, useAnimatedStyle, withSpring } from 'react-native-reanimated'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { usePostDraft } from '../../src/hooks/usePostDraft'
@@ -60,6 +60,7 @@ function TypeCard({
   selected: boolean
   onSelect: () => void
 }) {
+  const styles = useStyles()
   const radioScale = useSharedValue(selected ? 1 : 0)
 
   useEffect(() => {
@@ -95,6 +96,7 @@ function TypeCard({
 }
 
 export default function PostStep1Screen() {
+  const styles = useStyles()
   const insets = useSafeAreaInsets()
   const router = useRouter()
   const { listingType, setListingType, reset } = usePostDraft()
@@ -169,74 +171,77 @@ export default function PostStep1Screen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  content: { padding: 20, gap: 12, paddingBottom: 40 },
-  heading: {
-    ...(fonts.displayMd as object),
-    color: colors.ink,
-    marginBottom: 4,
-  },
-  subheading: {
-    ...(fonts.bodyMd as object),
-    color: colors.slateBrand,
-    marginBottom: 8,
-  },
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    borderWidth: 2,
-    borderColor: `${colors.ghost}50`,
-    padding: 18,
-    ...shadows.card,
-  },
-  cardSelected: {
-    borderColor: colors.coral,
-    backgroundColor: `${colors.coral}0A`,
-  },
-  cardTopRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 8,
-  },
-  cardIcon: { fontSize: 28 },
-  radioOuter: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    borderWidth: 2,
-    borderColor: colors.ghost,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  radioOuterSelected: {
-    borderColor: colors.coral,
-    backgroundColor: colors.coral,
-  },
-  radioInner: {
-    width: 10,
-    height: 10,
-    borderRadius: 5,
-    backgroundColor: colors.surface,
-  },
-  cardName: {
-    ...(fonts.titleMd as object),
-    color: colors.jet,
-    marginBottom: 4,
-  },
-  cardDescription: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  legalNote: {
-    backgroundColor: colors.greenBg,
-    borderRadius: 10,
-    padding: 10,
-    marginTop: 12,
-  },
-  legalText: {
-    ...(fonts.bodySm as object),
-    color: colors.green,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    content: { padding: 20, gap: 12, paddingBottom: 40 },
+    heading: {
+      ...(fonts.displayMd as object),
+      color: colors.ink,
+      marginBottom: 4,
+    },
+    subheading: {
+      ...(fonts.bodyMd as object),
+      color: colors.slateBrand,
+      marginBottom: 8,
+    },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      borderWidth: 2,
+      borderColor: `${colors.ghost}50`,
+      padding: 18,
+      ...shadows.card,
+    },
+    cardSelected: {
+      borderColor: colors.coral,
+      backgroundColor: `${colors.coral}0A`,
+    },
+    cardTopRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'flex-start',
+      marginBottom: 8,
+    },
+    cardIcon: { fontSize: 28 },
+    radioOuter: {
+      width: 22,
+      height: 22,
+      borderRadius: 11,
+      borderWidth: 2,
+      borderColor: colors.ghost,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    radioOuterSelected: {
+      borderColor: colors.coral,
+      backgroundColor: colors.coral,
+    },
+    radioInner: {
+      width: 10,
+      height: 10,
+      borderRadius: 5,
+      backgroundColor: colors.surface,
+    },
+    cardName: {
+      ...(fonts.titleMd as object),
+      color: colors.jet,
+      marginBottom: 4,
+    },
+    cardDescription: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    legalNote: {
+      backgroundColor: colors.greenBg,
+      borderRadius: 10,
+      padding: 10,
+      marginTop: 12,
+    },
+    legalText: {
+      ...(fonts.bodySm as object),
+      color: colors.green,
+    },
+  }), [colors])
+}

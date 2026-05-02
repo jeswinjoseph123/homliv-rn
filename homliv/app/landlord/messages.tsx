@@ -4,7 +4,8 @@ import { SafeAreaView } from 'react-native-safe-area-context'
 import { FlashList } from '@shopify/flash-list'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { useSession } from '../../src/hooks/useSession'
 import { useChatStore } from '../../src/hooks/useChatStore'
@@ -33,6 +34,8 @@ function ConvRow({
   sessionUserId: string
   onPress: () => void
 }) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   const otherId = conv.participantIds.find((id) => id !== sessionUserId) ?? conv.participantIds[0]
   const other = mockUsers.find((u) => u.id === otherId)
   if (!other) return null
@@ -82,6 +85,7 @@ export default function LandlordMessages() {
   const router = useRouter()
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
+  const styles = useStyles()
 
   const landlordConvs = useMemo(() => {
     if (!sessionUser) return []
@@ -138,71 +142,74 @@ export default function LandlordMessages() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-  listContent: { paddingBottom: 20 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    height: 76,
-    paddingHorizontal: 16,
-    gap: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}20`,
-  },
-  avatarWrap: { position: 'relative' },
-  avatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 14,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
-  onlineDot: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.green,
-    borderWidth: 1.5,
-    borderColor: colors.surface,
-  },
-  rowContent: { flex: 1, gap: 3 },
-  rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1, marginRight: 8 },
-  timestamp: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  preview: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  badge: {
-    minWidth: 20,
-    height: 20,
-    borderRadius: 10,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 6,
-  },
-  badgeText: { ...(fonts.labelSm as object), color: '#ffffff' },
-  empty: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingTop: 80,
-    gap: 8,
-  },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    listContent: { paddingBottom: 20 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      height: 76,
+      paddingHorizontal: 16,
+      gap: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}20`,
+    },
+    avatarWrap: { position: 'relative' },
+    avatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 14,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { ...(fonts.titleSm as object), color: '#ffffff' },
+    onlineDot: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.green,
+      borderWidth: 1.5,
+      borderColor: colors.surface,
+    },
+    rowContent: { flex: 1, gap: 3 },
+    rowTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1, marginRight: 8 },
+    timestamp: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    preview: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    badge: {
+      minWidth: 20,
+      height: 20,
+      borderRadius: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 6,
+    },
+    badgeText: { ...(fonts.labelSm as object), color: '#ffffff' },
+    empty: {
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingTop: 80,
+      gap: 8,
+    },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+  }), [colors])
+}

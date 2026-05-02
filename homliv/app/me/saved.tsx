@@ -1,9 +1,9 @@
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 import { View, Text, Pressable, Alert, StyleSheet } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router, useRouter } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { useSaved } from '../../src/hooks/useSaved'
 import { mockListings } from '../../src/data/listings'
@@ -11,6 +11,7 @@ import { ListingCard } from '../../src/components/feed/ListingCard'
 import type { Listing } from '../../src/types'
 
 function EmptyState() {
+  const styles = useStyles()
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyIcon}>🔖</Text>
@@ -28,6 +29,7 @@ export default function SavedScreen() {
   const savedIds = useSaved((s) => s.savedIds)
   const toggle = useSaved((s) => s.toggle)
   const savedListings = mockListings.filter((l) => savedIds.has(l.id))
+  const styles = useStyles()
 
   const handleUnsave = useCallback((listing: Listing) => {
     Alert.alert(
@@ -95,38 +97,41 @@ export default function SavedScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  back: { ...(fonts.bodyMd as object), color: colors.coral },
-  title: { ...(fonts.titleMd as object), color: colors.jet },
-  clearAll: { ...(fonts.labelMd as object), color: colors.red },
-  listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 },
-  cardWrap: { marginBottom: 16 },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 80,
-    gap: 8,
-    paddingHorizontal: 32,
-  },
-  emptyIcon: { fontSize: 44 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
-  emptyCta: {
-    marginTop: 12,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    backgroundColor: colors.coral,
-    borderRadius: 12,
-  },
-  emptyCtaText: { ...(fonts.titleSm as object), color: '#fff' },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    back: { ...(fonts.bodyMd as object), color: colors.coral },
+    title: { ...(fonts.titleMd as object), color: colors.jet },
+    clearAll: { ...(fonts.labelMd as object), color: colors.red },
+    listContent: { paddingHorizontal: 16, paddingTop: 16, paddingBottom: 32 },
+    cardWrap: { marginBottom: 16 },
+    empty: {
+      alignItems: 'center',
+      paddingTop: 80,
+      gap: 8,
+      paddingHorizontal: 32,
+    },
+    emptyIcon: { fontSize: 44 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+    emptyCta: {
+      marginTop: 12,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      backgroundColor: colors.coral,
+      borderRadius: 12,
+    },
+    emptyCtaText: { ...(fonts.titleSm as object), color: '#fff' },
+  }), [colors])
+}

@@ -5,7 +5,8 @@ import { LinearGradient } from 'expo-linear-gradient'
 import { Image } from 'expo-image'
 import { FlashList } from '@shopify/flash-list'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { useSession } from '../../src/hooks/useSession'
@@ -18,6 +19,7 @@ import type { Listing } from '../../src/types'
 const PLACEHOLDER = 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800'
 
 function StatusBadge({ label, color, bg }: { label: string; color: string; bg: string }) {
+  const styles = useStyles()
   return (
     <View style={[styles.badge, { backgroundColor: bg }]}>
       <Text style={[styles.badgeText, { color }]}>{label}</Text>
@@ -27,6 +29,8 @@ function StatusBadge({ label, color, bg }: { label: string; color: string; bg: s
 
 function PropertyCard({ listing, tenantName }: { listing: Listing; tenantName: string | null }) {
   const router = useRouter()
+  const { colors } = useTheme()
+  const styles = useStyles()
   const photo = listing.photos[0] ?? PLACEHOLDER
   const isOccupied = tenantName !== null
 
@@ -68,6 +72,7 @@ function PropertyCard({ listing, tenantName }: { listing: Listing; tenantName: s
 export default function LandlordProperties() {
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
+  const styles = useStyles()
 
   const properties = useMemo(
     () => mockListings.filter((l) => l.posterId === sessionUser?.id),
@@ -136,61 +141,64 @@ export default function LandlordProperties() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    headerCount: { ...(fonts.bodyMd as object), color: colors.slateBrand },
 
-  list: { paddingHorizontal: 20, paddingBottom: 100 },
+    list: { paddingHorizontal: 20, paddingBottom: 100 },
 
-  card: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: 'hidden',
-    marginBottom: 12,
-    ...(shadows.dashboard as object),
-  },
-  cardImage: { width: '100%', height: 140 },
-  cardBody: { padding: 16, gap: 4 },
-  cardTitle: { ...(fonts.titleSm as object), color: colors.jet },
-  cardLocation: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  cardPrice: { ...(fonts.price as object), color: colors.coral, fontSize: 16, marginTop: 4 },
-  cardFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  tenantName: { ...(fonts.labelMd as object), color: colors.slateBrand, flex: 1, marginRight: 8 },
-  vacantText: { ...(fonts.labelMd as object), color: colors.ghost },
-  badge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  badgeText: { ...(fonts.labelSm as object) },
+    card: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      overflow: 'hidden',
+      marginBottom: 12,
+      ...(shadows.dashboard as object),
+    },
+    cardImage: { width: '100%', height: 140 },
+    cardBody: { padding: 16, gap: 4 },
+    cardTitle: { ...(fonts.titleSm as object), color: colors.jet },
+    cardLocation: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    cardPrice: { ...(fonts.price as object), color: colors.coral, fontSize: 16, marginTop: 4 },
+    cardFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 4,
+    },
+    tenantName: { ...(fonts.labelMd as object), color: colors.slateBrand, flex: 1, marginRight: 8 },
+    vacantText: { ...(fonts.labelMd as object), color: colors.ghost },
+    badge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+    badgeText: { ...(fonts.labelSm as object) },
 
-  empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    empty: { alignItems: 'center', paddingTop: 80, gap: 8 },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand },
 
-  fab: {
-    position: 'absolute',
-    bottom: 100,
-    right: 20,
-    ...(shadows.coral as object),
-  },
-  fabGrad: {
-    width: 56,
-    height: 56,
-    borderRadius: 16,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  fabText: { ...(fonts.displayMd as object), color: '#ffffff', lineHeight: 56 },
-})
+    fab: {
+      position: 'absolute',
+      bottom: 100,
+      right: 20,
+      ...(shadows.coral as object),
+    },
+    fabGrad: {
+      width: 56,
+      height: 56,
+      borderRadius: 16,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    fabText: { ...(fonts.displayMd as object), color: '#ffffff', lineHeight: 56 },
+  }), [colors])
+}

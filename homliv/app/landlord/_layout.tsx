@@ -1,9 +1,10 @@
 import { Tabs } from 'expo-router'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { useRequireAuth } from '../../src/hooks/useRequireAuth'
 
 export default function LandlordLayout() {
   useRequireAuth({ requireLandlord: true })
+  const { colors } = useTheme()
 
   return (
     <Tabs

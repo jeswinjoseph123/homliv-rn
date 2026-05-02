@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -16,9 +16,10 @@ import { BlurView } from 'expo-blur'
 import { Ionicons } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
+import { useTheme } from '../../src/hooks/useTheme'
 import { mockListings } from '../../src/data/listings'
 import { mockUsers, mockSessionUser } from '../../src/data/users'
 import { mockConversations } from '../../src/data/conversations'
@@ -93,6 +94,7 @@ const PREF_SMOKE_LABEL: Record<string, string> = {
 }
 
 function SpecCell({ icon, value, label }: { icon: string; value: string; label: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.specCell}>
       <Text style={styles.specIcon}>{icon}</Text>
@@ -103,6 +105,7 @@ function SpecCell({ icon, value, label }: { icon: string; value: string; label: 
 }
 
 function PrefChip({ label }: { label: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.prefChip}>
       <Text style={styles.prefChipLabel}>{label}</Text>
@@ -111,6 +114,7 @@ function PrefChip({ label }: { label: string }) {
 }
 
 function AmenityChip({ label }: { label: string }) {
+  const styles = useStyles()
   return (
     <View style={styles.amenityChip}>
       <Text style={styles.amenityChipLabel}>{label}</Text>
@@ -119,6 +123,8 @@ function AmenityChip({ label }: { label: string }) {
 }
 
 export default function ListingDetailScreen() {
+  const { colors, isDark } = useTheme()
+  const styles = useStyles()
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
   const insets = useSafeAreaInsets()
@@ -192,7 +198,6 @@ export default function ListingDetailScreen() {
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: 120 }}
       >
-        {/* Photo Gallery */}
         <View style={{ height: GALLERY_HEIGHT }}>
           <ScrollView
             horizontal
@@ -224,14 +229,12 @@ export default function ListingDetailScreen() {
             )}
           </ScrollView>
 
-          {/* Gradient overlay bottom half */}
           <LinearGradient
             colors={['transparent', 'rgba(0,0,0,0.55)']}
             style={styles.galleryGradient}
             pointerEvents="none"
           />
 
-          {/* Back button */}
           <Pressable
             onPress={() => router.canGoBack() ? router.back() : router.replace('/')}
             style={[styles.galleryBtn, { top: insets.top + 12, left: 16 }]}
@@ -242,7 +245,6 @@ export default function ListingDetailScreen() {
             <Ionicons name="chevron-back" size={20} color="#ffffff" />
           </Pressable>
 
-          {/* Save + Share */}
           <View style={[styles.galleryBtnRow, { top: insets.top + 12, right: 16 }]}>
             <Pressable
               onPress={() => { toggle(listing.id); track('listing_saved', { listingId: listing.id }) }}
@@ -269,7 +271,6 @@ export default function ListingDetailScreen() {
             </Pressable>
           </View>
 
-          {/* Photo counter */}
           {photos.length > 1 && (
             <View style={styles.photoCounter}>
               <Text style={styles.photoCounterText}>
@@ -278,7 +279,6 @@ export default function ListingDetailScreen() {
             </View>
           )}
 
-          {/* Price overlay */}
           <View style={styles.priceOverlay}>
             <Text style={styles.priceText}>€{listing.price.toLocaleString('en-IE')}/mo</Text>
             {listing.billsIncluded && (
@@ -287,7 +287,6 @@ export default function ListingDetailScreen() {
           </View>
         </View>
 
-        {/* Content */}
         <View style={styles.content}>
           <Text style={styles.title}>{listing.title}</Text>
 
@@ -305,7 +304,6 @@ export default function ListingDetailScreen() {
             <Text style={styles.postedTime}>{formatRelativeTime(listing.createdAt)}</Text>
           </View>
 
-          {/* Specs row */}
           <View style={styles.specsRow}>
             <SpecCell
               icon="🛏"
@@ -326,13 +324,11 @@ export default function ListingDetailScreen() {
 
           <Text style={styles.description}>{listing.description}</Text>
 
-          {/* Move-in */}
           <View style={styles.moveInRow}>
             <Text style={styles.moveInLabel}>Move-in</Text>
             <Text style={styles.moveInValue}>{formatMoveIn(listing.moveInDate)}</Text>
           </View>
 
-          {/* Tags / amenities */}
           {listing.tags.length > 0 && (
             <View style={styles.chipsSection}>
               <Text style={styles.chipsSectionLabel}>Amenities</Text>
@@ -344,7 +340,6 @@ export default function ListingDetailScreen() {
             </View>
           )}
 
-          {/* Preference tags — only owner_occupier */}
           {listing.listingType === 'owner_occupier' && prefTags.length > 0 && (
             <View style={styles.chipsSection}>
               <Text style={styles.chipsSectionLabel}>Home preferences</Text>
@@ -356,7 +351,6 @@ export default function ListingDetailScreen() {
             </View>
           )}
 
-          {/* Poster card */}
           <View style={styles.posterCard}>
             <View style={styles.posterAvatar}>
               <Text style={styles.posterAvatarText}>
@@ -374,21 +368,19 @@ export default function ListingDetailScreen() {
             </View>
           </View>
 
-          {/* Report */}
           <Pressable style={styles.reportBtn} hitSlop={8}>
             <Text style={styles.reportLabel}>Report this listing</Text>
           </Pressable>
         </View>
       </ScrollView>
 
-      {/* Sticky CTA */}
       <View
         style={[
           styles.ctaContainer,
           { paddingBottom: Math.max(insets.bottom, 16) },
         ]}
       >
-        <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
+        <BlurView intensity={60} tint={isDark ? 'dark' : 'light'} style={StyleSheet.absoluteFill} />
         <Pressable
           onPress={handleMessage}
           style={styles.ctaBtn}
@@ -409,253 +401,256 @@ export default function ListingDetailScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  notFound: { alignItems: 'center', justifyContent: 'center', gap: 16 },
-  notFoundText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-  backFallback: { padding: 12 },
-  backFallbackLabel: { ...(fonts.titleSm as object), color: colors.coral },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    notFound: { alignItems: 'center', justifyContent: 'center', gap: 16 },
+    notFoundText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+    backFallback: { padding: 12 },
+    backFallbackLabel: { ...(fonts.titleSm as object), color: colors.coral },
 
-  galleryGradient: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    height: GALLERY_HEIGHT / 2,
-  },
-  galleryBtn: {
-    position: 'absolute',
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: 'rgba(0,0,0,0.35)',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  galleryBtnRow: {
-    position: 'absolute',
-    flexDirection: 'row',
-    gap: 8,
-  },
-  photoCounter: {
-    position: 'absolute',
-    bottom: 52,
-    right: 16,
-    backgroundColor: 'rgba(0,0,0,0.45)',
-    borderRadius: 10,
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-  },
-  photoCounterText: {
-    ...(fonts.labelSm as object),
-    color: '#ffffff',
-  },
-  priceOverlay: {
-    position: 'absolute',
-    bottom: 12,
-    left: 16,
-    gap: 2,
-  },
-  priceText: {
-    ...(fonts.priceLg as object),
-    color: '#ffffff',
-    textShadowColor: 'rgba(0,0,0,0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 4,
-  },
-  billsText: {
-    ...(fonts.labelSm as object),
-    color: 'rgba(255,255,255,0.85)',
-  },
-  photoPlaceholder: {
-    backgroundColor: colors.surfaceLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  photoPlaceholderIcon: { fontSize: 48 },
+    galleryGradient: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      height: GALLERY_HEIGHT / 2,
+    },
+    galleryBtn: {
+      position: 'absolute',
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: 'rgba(0,0,0,0.35)',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    galleryBtnRow: {
+      position: 'absolute',
+      flexDirection: 'row',
+      gap: 8,
+    },
+    photoCounter: {
+      position: 'absolute',
+      bottom: 52,
+      right: 16,
+      backgroundColor: 'rgba(0,0,0,0.45)',
+      borderRadius: 10,
+      paddingHorizontal: 8,
+      paddingVertical: 3,
+    },
+    photoCounterText: {
+      ...(fonts.labelSm as object),
+      color: '#ffffff',
+    },
+    priceOverlay: {
+      position: 'absolute',
+      bottom: 12,
+      left: 16,
+      gap: 2,
+    },
+    priceText: {
+      ...(fonts.priceLg as object),
+      color: '#ffffff',
+      textShadowColor: 'rgba(0,0,0,0.5)',
+      textShadowOffset: { width: 0, height: 1 },
+      textShadowRadius: 4,
+    },
+    billsText: {
+      ...(fonts.labelSm as object),
+      color: 'rgba(255,255,255,0.85)',
+    },
+    photoPlaceholder: {
+      backgroundColor: colors.surfaceLow,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    photoPlaceholderIcon: { fontSize: 48 },
 
-  content: { padding: 20, gap: 16 },
+    content: { padding: 20, gap: 16 },
 
-  title: {
-    ...(fonts.displayMd as object),
-    color: colors.jet,
-    letterSpacing: -0.84,
-  },
-  metaRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  locationText: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    flex: 1,
-  },
-  rpzBadge: {
-    backgroundColor: colors.amberBg,
-    borderRadius: 8,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  rpzLabel: {
-    ...(fonts.labelSm as object),
-    color: colors.amber,
-  },
-  badgeRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  postedTime: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
+    title: {
+      ...(fonts.displayMd as object),
+      color: colors.jet,
+      letterSpacing: -0.84,
+    },
+    metaRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      flexWrap: 'wrap',
+    },
+    locationText: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+      flex: 1,
+    },
+    rpzBadge: {
+      backgroundColor: colors.amberBg,
+      borderRadius: 8,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    rpzLabel: {
+      ...(fonts.labelSm as object),
+      color: colors.amber,
+    },
+    badgeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    postedTime: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
 
-  specsRow: {
-    flexDirection: 'row',
-    backgroundColor: colors.surface,
-    borderRadius: 14,
-    ...shadows.card,
-    overflow: 'hidden',
-  },
-  specCell: {
-    flex: 1,
-    alignItems: 'center',
-    paddingVertical: 12,
-    gap: 4,
-  },
-  specIcon: { fontSize: 18 },
-  specValue: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  specLabel: {
-    ...(fonts.labelSm as object),
-    color: colors.slateBrand,
-  },
-  specDivider: {
-    width: StyleSheet.hairlineWidth,
-    backgroundColor: `${colors.ghost}50`,
-    marginVertical: 12,
-  },
+    specsRow: {
+      flexDirection: 'row',
+      backgroundColor: colors.surface,
+      borderRadius: 14,
+      ...shadows.card,
+      overflow: 'hidden',
+    },
+    specCell: {
+      flex: 1,
+      alignItems: 'center',
+      paddingVertical: 12,
+      gap: 4,
+    },
+    specIcon: { fontSize: 18 },
+    specValue: {
+      ...(fonts.titleSm as object),
+      color: colors.jet,
+    },
+    specLabel: {
+      ...(fonts.labelSm as object),
+      color: colors.slateBrand,
+    },
+    specDivider: {
+      width: StyleSheet.hairlineWidth,
+      backgroundColor: `${colors.ghost}50`,
+      marginVertical: 12,
+    },
 
-  description: {
-    ...(fonts.bodyLg as object),
-    color: colors.ink,
-  },
-  moveInRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  moveInLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
-  moveInValue: {
-    ...(fonts.bodySm as object),
-    color: colors.ink,
-    fontWeight: '600',
-  },
+    description: {
+      ...(fonts.bodyLg as object),
+      color: colors.ink,
+    },
+    moveInRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+    },
+    moveInLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
+    moveInValue: {
+      ...(fonts.bodySm as object),
+      color: colors.ink,
+      fontWeight: '600',
+    },
 
-  chipsSection: { gap: 8 },
-  chipsSectionLabel: {
-    ...(fonts.labelMd as object),
-    color: colors.slateBrand,
-  },
-  chipsRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  amenityChip: {
-    backgroundColor: colors.surfaceLow,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  amenityChipLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.ink,
-  },
-  prefChip: {
-    backgroundColor: colors.greenBg,
-    borderRadius: 20,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-  },
-  prefChipLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.green,
-  },
+    chipsSection: { gap: 8 },
+    chipsSectionLabel: {
+      ...(fonts.labelMd as object),
+      color: colors.slateBrand,
+    },
+    chipsRow: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    amenityChip: {
+      backgroundColor: colors.surfaceLow,
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    amenityChipLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.ink,
+    },
+    prefChip: {
+      backgroundColor: colors.greenBg,
+      borderRadius: 20,
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+    },
+    prefChipLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.green,
+    },
 
-  posterCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 18,
-    padding: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    ...shadows.card,
-  },
-  posterAvatar: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: colors.jet,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  posterAvatarText: {
-    ...(fonts.titleMd as object),
-    color: colors.surface,
-  },
-  posterNameRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-    flexWrap: 'wrap',
-  },
-  posterName: {
-    ...(fonts.titleSm as object),
-    color: colors.jet,
-  },
-  posterMeta: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-  },
+    posterCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 18,
+      padding: 16,
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      ...shadows.card,
+    },
+    posterAvatar: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.jet,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    posterAvatarText: {
+      ...(fonts.titleMd as object),
+      color: colors.surface,
+    },
+    posterNameRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      flexWrap: 'wrap',
+    },
+    posterName: {
+      ...(fonts.titleSm as object),
+      color: colors.jet,
+    },
+    posterMeta: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+    },
 
-  reportBtn: { alignSelf: 'flex-start', paddingVertical: 4 },
-  reportLabel: {
-    ...(fonts.bodySm as object),
-    color: colors.slateBrand,
-    textDecorationLine: 'underline',
-  },
+    reportBtn: { alignSelf: 'flex-start', paddingVertical: 4 },
+    reportLabel: {
+      ...(fonts.bodySm as object),
+      color: colors.slateBrand,
+      textDecorationLine: 'underline',
+    },
 
-  ctaContainer: {
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    paddingTop: 12,
-    paddingHorizontal: 16,
-    overflow: 'hidden',
-  },
-  ctaBtn: {
-    borderRadius: 18,
-    overflow: 'hidden',
-    ...shadows.coral,
-  },
-  ctaGradient: {
-    height: 56,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  ctaLabel: {
-    fontSize: 15,
-    fontWeight: '700',
-    color: '#ffffff',
-    letterSpacing: -0.2,
-  },
-})
+    ctaContainer: {
+      position: 'absolute',
+      bottom: 0,
+      left: 0,
+      right: 0,
+      paddingTop: 12,
+      paddingHorizontal: 16,
+      overflow: 'hidden',
+    },
+    ctaBtn: {
+      borderRadius: 18,
+      overflow: 'hidden',
+      ...shadows.coral,
+    },
+    ctaGradient: {
+      height: 56,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    ctaLabel: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: '#ffffff',
+      letterSpacing: -0.2,
+    },
+  }), [colors])
+}

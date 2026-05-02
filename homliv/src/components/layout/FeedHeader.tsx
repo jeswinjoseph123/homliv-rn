@@ -1,7 +1,8 @@
+import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { BlurView } from 'expo-blur'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 type Props = {
@@ -11,6 +12,8 @@ type Props = {
 }
 
 export function FeedHeader({ hasUnread = false, onBellPress, onSearchPress }: Props) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={styles.wrapper}>
       <BlurView intensity={60} tint="light" style={StyleSheet.absoluteFill} />
@@ -33,39 +36,39 @@ export function FeedHeader({ hasUnread = false, onBellPress, onSearchPress }: Pr
   )
 }
 
-const styles = StyleSheet.create({
-  wrapper: {
-    height: 56,
-    overflow: 'hidden',
-  },
-  inner: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 16,
-  },
-  logo: { ...(fonts.titleLg as object) },
-  logoHom: { color: colors.ink },
-  logoLiv: { color: colors.coral },
-  actions: { flexDirection: 'row', gap: 8 },
-  iconBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 12,
-    backgroundColor: colors.surfaceLow,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  redDot: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.red,
-    borderWidth: 1.5,
-    borderColor: colors.surface,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    wrapper: { height: 56, overflow: 'hidden' },
+    inner: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 16,
+    },
+    logo: { ...(fonts.titleLg as object) },
+    logoHom: { color: colors.ink },
+    logoLiv: { color: colors.coral },
+    actions: { flexDirection: 'row', gap: 8 },
+    iconBtn: {
+      width: 38,
+      height: 38,
+      borderRadius: 12,
+      backgroundColor: colors.surfaceLow,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    redDot: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      width: 8,
+      height: 8,
+      borderRadius: 4,
+      backgroundColor: colors.red,
+      borderWidth: 1.5,
+      borderColor: colors.surface,
+    },
+  }), [colors])
+}

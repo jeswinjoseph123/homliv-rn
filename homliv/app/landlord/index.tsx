@@ -3,7 +3,8 @@ import { View, Text, Pressable, ScrollView, StyleSheet } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { LinearGradient } from 'expo-linear-gradient'
 import { useRouter } from 'expo-router'
-import { colors, gradients } from '../../src/constants/colors'
+import { gradients } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { useSession } from '../../src/hooks/useSession'
@@ -28,6 +29,7 @@ export default function LandlordOverview() {
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
   const [rtbDismissed, setRtbDismissed] = useState(false)
+  const styles = useStyles()
 
   const properties = useMemo(
     () => mockListings.filter((l) => l.posterId === sessionUser?.id),
@@ -180,102 +182,105 @@ export default function LandlordOverview() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
 
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  headerSub: { ...(fonts.bodySm as object), color: colors.slateBrand, marginTop: 2 },
-  closeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    alignItems: 'center',
-    justifyContent: 'center',
-    ...(shadows.card as object),
-  },
-  closeBtnText: { ...(fonts.titleMd as object), color: colors.slateBrand },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    headerSub: { ...(fonts.bodySm as object), color: colors.slateBrand, marginTop: 2 },
+    closeBtn: {
+      width: 36,
+      height: 36,
+      borderRadius: 10,
+      backgroundColor: colors.surface,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...(shadows.card as object),
+    },
+    closeBtnText: { ...(fonts.titleMd as object), color: colors.slateBrand },
 
-  scroll: { paddingHorizontal: 20, paddingBottom: 40 },
+    scroll: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  rtbBanner: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: colors.amberBg,
-    borderRadius: 14,
-    padding: 14,
-    gap: 12,
-    borderWidth: 1,
-    borderColor: `${colors.amber}40`,
-    marginBottom: 20,
-  },
-  rtbText: { ...(fonts.bodySm as object), color: colors.jet, flex: 1 },
-  rtbDismiss: { ...(fonts.titleSm as object), color: colors.slateBrand },
+    rtbBanner: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: colors.amberBg,
+      borderRadius: 14,
+      padding: 14,
+      gap: 12,
+      borderWidth: 1,
+      borderColor: `${colors.amber}40`,
+      marginBottom: 20,
+    },
+    rtbText: { ...(fonts.bodySm as object), color: colors.jet, flex: 1 },
+    rtbDismiss: { ...(fonts.titleSm as object), color: colors.slateBrand },
 
-  statsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
-  statCard: {
-    flex: 1,
-    borderRadius: 20,
-    padding: 20,
-    gap: 4,
-    ...(shadows.dashboard as object),
-  },
-  statValue: { ...(fonts.priceLg as object), color: '#ffffff', fontSize: 28 },
-  statLabel: { ...(fonts.labelMd as object), color: 'rgba(255,255,255,0.8)' },
+    statsRow: { flexDirection: 'row', gap: 12, marginBottom: 12 },
+    statCard: {
+      flex: 1,
+      borderRadius: 20,
+      padding: 20,
+      gap: 4,
+      ...(shadows.dashboard as object),
+    },
+    statValue: { ...(fonts.priceLg as object), color: '#ffffff', fontSize: 28 },
+    statLabel: { ...(fonts.labelMd as object), color: 'rgba(255,255,255,0.8)' },
 
-  sectionTitle: {
-    ...(fonts.titleMd as object),
-    color: colors.jet,
-    marginTop: 8,
-    marginBottom: 12,
-  },
+    sectionTitle: {
+      ...(fonts.titleMd as object),
+      color: colors.jet,
+      marginTop: 8,
+      marginBottom: 12,
+    },
 
-  activityCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...(shadows.dashboard as object),
-  },
-  activityRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  activityDivider: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}30`,
-  },
-  activityAvatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  activityAvatarText: { ...(fonts.labelMd as object), color: '#ffffff' },
-  activityContent: { flex: 1, gap: 2 },
-  activityTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  activityName: { ...(fonts.titleSm as object), color: colors.jet },
-  activityTime: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  activityPreview: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  activityProperty: { ...(fonts.labelSm as object), color: colors.coral },
+    activityCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      overflow: 'hidden',
+      ...(shadows.dashboard as object),
+    },
+    activityRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      gap: 12,
+    },
+    activityDivider: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}30`,
+    },
+    activityAvatar: {
+      width: 40,
+      height: 40,
+      borderRadius: 12,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    activityAvatarText: { ...(fonts.labelMd as object), color: '#ffffff' },
+    activityContent: { flex: 1, gap: 2 },
+    activityTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+    activityName: { ...(fonts.titleSm as object), color: colors.jet },
+    activityTime: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    activityPreview: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    activityProperty: { ...(fonts.labelSm as object), color: colors.coral },
 
-  emptyActivity: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 24,
-    alignItems: 'center',
-    ...(shadows.card as object),
-  },
-  emptyText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
-})
+    emptyActivity: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 24,
+      alignItems: 'center',
+      ...(shadows.card as object),
+    },
+    emptyText: { ...(fonts.bodyMd as object), color: colors.slateBrand },
+  }), [colors])
+}

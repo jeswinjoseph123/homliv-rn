@@ -1,11 +1,14 @@
+import { useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { colors } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 type Props = { onClearFilters: () => void }
 
 export function FeedEmptyState({ onClearFilters }: Props) {
+  const { colors } = useTheme()
+  const styles = useStyles()
   return (
     <View style={styles.container}>
       <Ionicons name="home-outline" size={72} color={colors.slateBrand} style={styles.icon} />
@@ -20,37 +23,26 @@ export function FeedEmptyState({ onClearFilters }: Props) {
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 32,
-    paddingTop: 64,
-  },
-  icon: { opacity: 0.3, marginBottom: 24 },
-  heading: {
-    ...(fonts.titleMd as object),
-    color: colors.jet,
-    textAlign: 'center',
-    marginBottom: 12,
-  },
-  body: {
-    ...(fonts.bodyMd as object),
-    color: colors.slateBrand,
-    textAlign: 'center',
-    marginBottom: 24,
-  },
-  cta: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: colors.ghost,
-  },
-  ctaText: {
-    ...(fonts.bodySm as object),
-    color: colors.coral,
-    fontWeight: '600',
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 32,
+      paddingTop: 64,
+    },
+    icon: { opacity: 0.3, marginBottom: 24 },
+    heading: { ...(fonts.titleMd as object), color: colors.jet, textAlign: 'center', marginBottom: 12 },
+    body: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center', marginBottom: 24 },
+    cta: {
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 20,
+      borderWidth: 1.5,
+      borderColor: colors.ghost,
+    },
+    ctaText: { ...(fonts.bodySm as object), color: colors.coral, fontWeight: '600' },
+  }), [colors])
+}

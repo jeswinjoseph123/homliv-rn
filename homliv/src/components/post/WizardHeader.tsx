@@ -1,8 +1,9 @@
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { View, Text, Pressable, StyleSheet, useWindowDimensions } from 'react-native'
 import { LinearGradient } from 'expo-linear-gradient'
 import Animated, { useSharedValue, useAnimatedStyle, withTiming } from 'react-native-reanimated'
-import { colors, gradients } from '../../constants/colors'
+import { gradients } from '../../constants/colors'
+import { useTheme } from '../../hooks/useTheme'
 import { fonts } from '../../constants/typography'
 
 type Props = {
@@ -16,6 +17,7 @@ type Props = {
 }
 
 function StepDot({ dotIndex, currentStep }: { dotIndex: number; currentStep: number }) {
+  const styles = useStyles()
   const isActive = dotIndex === currentStep - 1
   const isDone = dotIndex < currentStep - 1
 
@@ -33,6 +35,7 @@ export function WizardHeader({
   nextDisabled = false,
   showNext = true,
 }: Props) {
+  const styles = useStyles()
   const { width } = useWindowDimensions()
   const progressWidth = useSharedValue((step / 4) * width)
 
@@ -51,9 +54,7 @@ export function WizardHeader({
           <Text style={styles.closeIcon}>✕</Text>
         </Pressable>
 
-        <Text style={styles.title} numberOfLines={1}>
-          {title}
-        </Text>
+        <Text style={styles.title} numberOfLines={1}>{title}</Text>
 
         {showNext && onNext ? (
           <Pressable
@@ -90,73 +91,26 @@ export function WizardHeader({
   )
 }
 
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: colors.surface,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    height: 52,
-  },
-  closeBtn: {
-    width: 44,
-    alignItems: 'flex-start',
-  },
-  closeIcon: {
-    ...(fonts.titleMd as object),
-    color: colors.ink,
-  },
-  title: {
-    ...(fonts.titleMd as object),
-    color: colors.ink,
-    flex: 1,
-    textAlign: 'center',
-  },
-  nextBtn: {
-    width: 56,
-    alignItems: 'flex-end',
-  },
-  nextLabel: {
-    ...(fonts.titleSm as object),
-    color: colors.coral,
-  },
-  nextDisabled: {
-    opacity: 0.4,
-  },
-  progressTrack: {
-    height: 3,
-    backgroundColor: `${colors.ghost}30`,
-  },
-  progressFill: {
-    height: 3,
-    overflow: 'hidden',
-  },
-  dotsRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 8,
-    paddingVertical: 10,
-  },
-  dotActive: {
-    width: 24,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.coral,
-  },
-  dotDone: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: colors.green,
-  },
-  dotPending: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: `${colors.ghost}80`,
-  },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: {
+      backgroundColor: colors.surface,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    headerRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: 20, height: 52 },
+    closeBtn: { width: 44, alignItems: 'flex-start' },
+    closeIcon: { ...(fonts.titleMd as object), color: colors.ink },
+    title: { ...(fonts.titleMd as object), color: colors.ink, flex: 1, textAlign: 'center' },
+    nextBtn: { width: 56, alignItems: 'flex-end' },
+    nextLabel: { ...(fonts.titleSm as object), color: colors.coral },
+    nextDisabled: { opacity: 0.4 },
+    progressTrack: { height: 3, backgroundColor: `${colors.ghost}30` },
+    progressFill: { height: 3, overflow: 'hidden' },
+    dotsRow: { flexDirection: 'row', justifyContent: 'center', gap: 8, paddingVertical: 10 },
+    dotActive: { width: 24, height: 8, borderRadius: 4, backgroundColor: colors.coral },
+    dotDone: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.green },
+    dotPending: { width: 8, height: 8, borderRadius: 4, backgroundColor: `${colors.ghost}80` },
+  }), [colors])
+}

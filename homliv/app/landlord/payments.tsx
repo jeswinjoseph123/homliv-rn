@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 import { View, Text, Pressable, ScrollView, StyleSheet, Alert } from 'react-native'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { colors } from '../../src/constants/colors'
+import { useTheme } from '../../src/hooks/useTheme'
 import { fonts } from '../../src/constants/typography'
 import { shadows } from '../../src/constants/shadows'
 import { useSession } from '../../src/hooks/useSession'
@@ -9,6 +9,7 @@ import { useChatStore } from '../../src/hooks/useChatStore'
 import { mockListings } from '../../src/data/listings'
 import { mockUsers } from '../../src/data/users'
 import { formatPrice } from '../../src/lib/utils'
+import type { ColorTokens } from '../../src/constants/colors'
 
 type PayStatus = 'paid' | 'overdue' | 'pending'
 
@@ -22,7 +23,7 @@ type RentCard = {
   status: PayStatus
 }
 
-const statusConfig = (s: PayStatus) => {
+function statusConfig(s: PayStatus, colors: ColorTokens) {
   if (s === 'paid') return { label: 'Paid', color: colors.green, bg: colors.greenBg }
   if (s === 'overdue') return { label: 'Overdue', color: colors.red, bg: colors.redBg }
   return { label: 'Pending', color: colors.amber, bg: colors.amberBg }
@@ -32,6 +33,8 @@ export default function LandlordPayments() {
   const sessionUser = useSession((s) => s.user)
   const conversations = useChatStore((s) => s.conversations)
   const [paidIds, setPaidIds] = useState<Set<string>>(new Set(['c3']))
+  const { colors } = useTheme()
+  const styles = useStyles()
 
   const rentCards = useMemo<RentCard[]>(() => {
     const cards: RentCard[] = []
@@ -91,7 +94,7 @@ export default function LandlordPayments() {
 
         {rentCards.length > 0 ? (
           rentCards.map((card) => {
-            const sc = statusConfig(card.status)
+            const sc = statusConfig(card.status, colors)
             return (
               <View key={card.id} style={styles.rentCard}>
                 <View style={styles.rentCardHeader}>
@@ -164,86 +167,89 @@ export default function LandlordPayments() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surfaceLow },
-  header: {
-    paddingHorizontal: 20,
-    paddingVertical: 16,
-  },
-  headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
-  scroll: { paddingHorizontal: 20, paddingBottom: 40 },
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surfaceLow },
+    header: {
+      paddingHorizontal: 20,
+      paddingVertical: 16,
+    },
+    headerTitle: { ...(fonts.titleLg as object), color: colors.jet },
+    scroll: { paddingHorizontal: 20, paddingBottom: 40 },
 
-  banner: {
-    backgroundColor: colors.amberBg,
-    borderRadius: 14,
-    padding: 14,
-    borderWidth: 1,
-    borderColor: `${colors.amber}40`,
-    marginBottom: 20,
-  },
-  bannerText: { ...(fonts.bodySm as object), color: colors.jet },
+    banner: {
+      backgroundColor: colors.amberBg,
+      borderRadius: 14,
+      padding: 14,
+      borderWidth: 1,
+      borderColor: `${colors.amber}40`,
+      marginBottom: 20,
+    },
+    bannerText: { ...(fonts.bodySm as object), color: colors.jet },
 
-  sectionTitle: {
-    ...(fonts.titleMd as object),
-    color: colors.jet,
-    marginBottom: 12,
-  },
+    sectionTitle: {
+      ...(fonts.titleMd as object),
+      color: colors.jet,
+      marginBottom: 12,
+    },
 
-  rentCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    padding: 16,
-    marginBottom: 12,
-    gap: 10,
-    ...(shadows.dashboard as object),
-  },
-  rentCardHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
-  rentCardInfo: { flex: 1, gap: 2, marginRight: 8 },
-  rentTenantName: { ...(fonts.titleSm as object), color: colors.jet },
-  rentProperty: { ...(fonts.bodySm as object), color: colors.slateBrand },
-  statusBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
-  statusText: { ...(fonts.labelSm as object) },
-  rentCardAmountRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'baseline',
-  },
-  rentAmount: { ...(fonts.priceLg as object), color: colors.jet, fontSize: 24 },
-  rentDue: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  markPaidBtn: {
-    paddingVertical: 10,
-    borderRadius: 12,
-    backgroundColor: `${colors.green}15`,
-    alignItems: 'center',
-  },
-  markPaidText: { ...(fonts.labelMd as object), color: colors.green },
+    rentCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      padding: 16,
+      marginBottom: 12,
+      gap: 10,
+      ...(shadows.dashboard as object),
+    },
+    rentCardHeader: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between' },
+    rentCardInfo: { flex: 1, gap: 2, marginRight: 8 },
+    rentTenantName: { ...(fonts.titleSm as object), color: colors.jet },
+    rentProperty: { ...(fonts.bodySm as object), color: colors.slateBrand },
+    statusBadge: { borderRadius: 8, paddingHorizontal: 8, paddingVertical: 3 },
+    statusText: { ...(fonts.labelSm as object) },
+    rentCardAmountRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'baseline',
+    },
+    rentAmount: { ...(fonts.priceLg as object), color: colors.jet, fontSize: 24 },
+    rentDue: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    markPaidBtn: {
+      paddingVertical: 10,
+      borderRadius: 12,
+      backgroundColor: `${colors.green}15`,
+      alignItems: 'center',
+    },
+    markPaidText: { ...(fonts.labelMd as object), color: colors.green },
 
-  empty: { alignItems: 'center', paddingVertical: 40, gap: 8 },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
+    empty: { alignItems: 'center', paddingVertical: 40, gap: 8 },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodyMd as object), color: colors.slateBrand, textAlign: 'center' },
 
-  historyCard: {
-    backgroundColor: colors.surface,
-    borderRadius: 20,
-    overflow: 'hidden',
-    ...(shadows.dashboard as object),
-  },
-  historyRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    gap: 12,
-  },
-  historyDivider: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}30`,
-  },
-  historyLeft: { gap: 2 },
-  historyMonth: { ...(fonts.titleSm as object), color: colors.jet },
-  historyTenant: { ...(fonts.labelSm as object), color: colors.slateBrand },
-  historyRight: { alignItems: 'flex-end', gap: 4 },
-  historyAmount: { ...(fonts.price as object), color: colors.jet, fontSize: 15 },
-})
+    historyCard: {
+      backgroundColor: colors.surface,
+      borderRadius: 20,
+      overflow: 'hidden',
+      ...(shadows.dashboard as object),
+    },
+    historyRow: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      gap: 12,
+    },
+    historyDivider: {
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}30`,
+    },
+    historyLeft: { gap: 2 },
+    historyMonth: { ...(fonts.titleSm as object), color: colors.jet },
+    historyTenant: { ...(fonts.labelSm as object), color: colors.slateBrand },
+    historyRight: { alignItems: 'flex-end', gap: 4 },
+    historyAmount: { ...(fonts.price as object), color: colors.jet, fontSize: 15 },
+  }), [colors])
+}

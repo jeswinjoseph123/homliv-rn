@@ -1,14 +1,16 @@
+import { useMemo } from 'react'
 import { View, Text, Pressable, Alert, StyleSheet } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { router } from 'expo-router'
-import { colors } from '../../../src/constants/colors'
+import { useTheme } from '../../../src/hooks/useTheme'
 import { fonts } from '../../../src/constants/typography'
 import { useBlocked } from '../../../src/hooks/useBlocked'
 import { mockUsers } from '../../../src/data/users'
 import { getInitials } from '../../../src/lib/utils'
 
 function EmptyState() {
+  const styles = useStyles()
   return (
     <View style={styles.empty}>
       <Text style={styles.emptyIcon}>🚫</Text>
@@ -21,6 +23,7 @@ function EmptyState() {
 export default function BlockedUsersScreen() {
   const { blockedIds, unblock } = useBlocked()
   const blockedUsers = mockUsers.filter((u) => blockedIds.includes(u.id))
+  const styles = useStyles()
 
   const handleUnblock = (userId: string, name: string) => {
     Alert.alert(
@@ -70,52 +73,55 @@ export default function BlockedUsersScreen() {
   )
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: colors.surface },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}40`,
-  },
-  back: { ...(fonts.bodyMd as object), color: colors.coral },
-  title: { ...(fonts.titleMd as object), color: colors.jet },
-  listContent: { padding: 20 },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-    paddingVertical: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: `${colors.ghost}30`,
-  },
-  avatar: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    backgroundColor: colors.slateBrand,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  avatarText: { ...(fonts.titleSm as object), color: '#fff' },
-  name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1 },
-  unblockBtn: {
-    borderWidth: 1.5,
-    borderColor: `${colors.ghost}80`,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 7,
-  },
-  unblockLabel: { ...(fonts.labelMd as object), color: colors.coral },
-  empty: {
-    alignItems: 'center',
-    paddingTop: 80,
-    gap: 8,
-  },
-  emptyIcon: { fontSize: 40 },
-  emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
-  emptySub: { ...(fonts.bodySm as object), color: colors.slateBrand, textAlign: 'center', marginTop: 4 },
-})
+function useStyles() {
+  const { colors } = useTheme()
+  return useMemo(() => StyleSheet.create({
+    container: { flex: 1, backgroundColor: colors.surface },
+    header: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}40`,
+    },
+    back: { ...(fonts.bodyMd as object), color: colors.coral },
+    title: { ...(fonts.titleMd as object), color: colors.jet },
+    listContent: { padding: 20 },
+    row: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+      paddingVertical: 12,
+      borderBottomWidth: StyleSheet.hairlineWidth,
+      borderBottomColor: `${colors.ghost}30`,
+    },
+    avatar: {
+      width: 44,
+      height: 44,
+      borderRadius: 12,
+      backgroundColor: colors.slateBrand,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    avatarText: { ...(fonts.titleSm as object), color: '#fff' },
+    name: { ...(fonts.titleSm as object), color: colors.jet, flex: 1 },
+    unblockBtn: {
+      borderWidth: 1.5,
+      borderColor: `${colors.ghost}80`,
+      borderRadius: 10,
+      paddingHorizontal: 14,
+      paddingVertical: 7,
+    },
+    unblockLabel: { ...(fonts.labelMd as object), color: colors.coral },
+    empty: {
+      alignItems: 'center',
+      paddingTop: 80,
+      gap: 8,
+    },
+    emptyIcon: { fontSize: 40 },
+    emptyTitle: { ...(fonts.titleMd as object), color: colors.jet },
+    emptySub: { ...(fonts.bodySm as object), color: colors.slateBrand, textAlign: 'center', marginTop: 4 },
+  }), [colors])
+}
